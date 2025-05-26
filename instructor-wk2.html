@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สไลด์การสอน: วิทยาศาสตร์เพิ่มเติม ม.3 (ว23201) - คาบที่ 2</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8; /* Subtle light blue background for the body */
+            overflow: hidden; /* Hide scrollbars */
+            color: #333;
+        }
+
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 100vh; /* Full viewport height */
+            overflow: hidden;
+            background-color: #ffffff; /* Default slide background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slide {
+            display: none; /* Hide all slides by default */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 40px 80px; /* Adjust padding */
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #333;
+            flex-direction: column; /* Arrange content vertically */
+            justify-content: flex-start; /* Align content to top */
+            align-items: center;
+            text-align: center;
+            transition: opacity 0.5s ease-in-out; /* Smooth transition */
+            opacity: 0; /* Start hidden for transition */
+        }
+
+        .slide.active {
+            display: flex; /* Show the active slide */
+            opacity: 1; /* Fade in */
+        }
+
+        .slide h1 {
+             color: #003366; /* Darker blue for main course title */
+             margin-bottom: 10px;
+             font-size: 2.8em;
+             font-weight: 700;
+        }
+
+        .slide h2 {
+            color: #0056b3; /* Dark blue for main headings */
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 2.3em; /* Larger font for main titles */
+            font-weight: 700;
+            border-bottom: 3px solid #007bff; /* Underline effect */
+            padding-bottom: 10px;
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+
+         .slide h3 {
+            color: #007bff; /* Blue for subheadings */
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.6em;
+            font-weight: 700;
+            text-align: center; /* Center subheadings */
+        }
+
+        .slide p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+             text-align: left; /* Left align paragraphs for readability */
+             width: 100%; /* Ensure paragraph takes full width */
+             max-width: 900px; /* Max width for paragraph content */
+        }
+
+         .slide ul {
+             font-size: 1.1em;
+             line-height: 1.6;
+             margin-bottom: 15px;
+             text-align: left; /* Left align list items */
+             width: 100%; /* Ensure list takes full width */
+             max-width: 900px; /* Max width for list content */
+             padding-left: 30px; /* Indent list items */
+         }
+
+         .slide li {
+             margin-bottom: 8px;
+             position: relative; /* For custom bullet points */
+         }
+
+         /* Custom bullet points */
+         .slide ul li::before {
+             content: '•'; /* Use a dot or other character */
+             color: #dc3545; /* Red color for problem-related bullet points */
+             font-weight: bold;
+             display: inline-block;
+             width: 1em;
+             margin-left: -1em;
+         }
+
+        .slide strong {
+            color: #0056b3; /* Highlight strong text */
+        }
+
+        .slide a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+
+        .slide .content {
+            width: 100%;
+            max-width: 1100px; /* Slightly wider content area */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+             text-align: center;
+             flex-grow: 1; /* Allow content to grow */
+             overflow-y: auto; /* Add scroll for long content if needed */
+             padding-bottom: 60px; /* Space for buttons */
+        }
+
+         .slide .two-column {
+             display: flex;
+             width: 100%;
+             max-width: 900px;
+             gap: 60px; /* More space between columns */
+             margin-top: 20px;
+             flex-wrap: wrap; /* Allow wrapping on smaller screens */
+             justify-content: center; /* Center columns if they wrap */
+         }
+
+         .slide .two-column > div {
+             flex: 1; /* Distribute space equally */
+             min-width: 350px; /* Minimum width before wrapping */
+             text-align: left; /* Left align text within columns */
+         }
+
+        .slide .activity-box {
+            border: 2px dashed #dc3545; /* Red dashed border for problems/activities */
+            padding: 25px;
+            margin-top: 30px;
+            background-color: #fff0f3; /* Very light pinkish background */
+            border-radius: 10px;
+            text-align: left;
+            width: 100%;
+             max-width: 800px;
+             box-shadow: 3px 3px 8px rgba(0,0,0,0.1); /* Subtle shadow */
+        }
+
+         .slide .activity-box h4 {
+             color: #c82333; /* Darker red */
+             margin-top: 0;
+             margin-bottom: 15px;
+             font-size: 1.4em;
+             border-bottom: 2px solid #dc3545;
+             padding-bottom: 5px;
+         }
+
+         .slide .activity-box p, .slide .activity-box ul {
+             font-size: 1.1em;
+             line-height: 1.5;
+         }
+
+         .slide .activity-box ul {
+              padding-left: 20px;
+         }
+          .slide .activity-box ul li::before {
+              content: '-'; /* Different bullet for activity box */
+              color: #dc3545;
+         }
+
+
+        /* Navigation Buttons */
+        .navigation-buttons {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .navigation-buttons button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 25px; /* Larger padding */
+            margin: 0 10px; /* More space between buttons */
+            cursor: pointer;
+            border-radius: 25px; /* Pill shape */
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            min-width: 120px; /* Ensure buttons are wide enough */
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .navigation-buttons button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px); /* Slight lift effect */
+        }
+         .navigation-buttons button:active {
+             transform: translateY(0); /* Press effect */
+         }
+
+        .navigation-buttons button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Page Number */
+        .page-number {
+            position: absolute;
+            bottom: 25px;
+            right: 30px;
+            font-size: 1em;
+            color: #555;
+            z-index: 10;
+        }
+
+        /* Image/Graphic Area Styling */
+        .slide .graphic-area {
+            margin-top: 0; /* Removed top margin as it's at the top */
+            margin-bottom: 20px; /* Space below graphic */
+            flex-shrink: 0; /* Prevent shrinking */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-height: 30vh; /* Limit graphic height */
+            overflow: hidden; /* Hide parts of large images */
+        }
+
+         .slide .graphic-area svg {
+             max-width: 100%; /* Image takes max width of its container */
+             max-height: 100%; /* Image takes max height of its container */
+             height: auto; /* Maintain aspect ratio */
+             width: auto; /* Maintain aspect ratio */
+             display: block;
+             object-fit: contain; /* Ensure image fits without distortion */
+         }
+
+
+         /* Style for small text like teacher/school info */
+         .small-text {
+             font-size: 1em;
+             color: #555;
+             margin-top: 8px;
+             margin-bottom: 8px;
+         }
+
+         /* Title Slide Specifics */
+         .slide.title-slide {
+             justify-content: center; /* Center content vertically on title slide */
+             background: linear-gradient(to bottom right, #e9f5ff, #ffffff); /* Subtle gradient */
+         }
+
+         .slide.title-slide h2 {
+             font-size: 3.2em;
+             margin-bottom: 10px;
+             border-bottom: none; /* No underline for this title */
+             padding-bottom: 0;
+             color: #003366;
+         }
+
+          .slide.title-slide h3 {
+              font-size: 2.2em;
+              margin-top: 0;
+              margin-bottom: 30px;
+              color: #007bff;
+              font-weight: normal; /* Lighter weight for secondary title */
+          }
+
+         .slide.title-slide p {
+             font-size: 1.2em;
+             margin-bottom: 5px;
+             color: #555;
+             text-align: center;
+         }
+
+         .slide.title-slide .graphic-area {
+             max-height: 45vh; /* Larger graphic on title slide */
+             margin-top: 30px;
+             margin-bottom: 30px;
+             /* No change in order for title slide - graphic stays near center */
+         }
+
+         /* Adjust layout for slides with graphic at top */
+         .slide:not(.title-slide) .content {
+             justify-content: flex-start; /* Align content from top */
+         }
+         /* Ensure some space below h2 when graphic is present */
+         .slide:not(.title-slide) h2 {
+             margin-bottom: 15px; /* Slightly less space than before graphic */
+         }
+
+         /* Add some top margin to the first text element after the graphic */
+         .slide:not(.title-slide) .content > *:not(.graphic-area):not(h2):not(h3):first-child {
+             margin-top: 10px;
+         }
+
+
+    </style>
+</head>
+<body>
+
+    <div class="slideshow-container">
+
+        <!-- Slide 1: Title Slide - Session 2 -->
+        <div class="slide active title-slide">
+            <div class="content">
+                 <!-- Graphic Area (kept near center for title slide) -->
+                <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <circle cx="50" cy="50" r="48" stroke-dasharray="10 5"/>
+                       <path d="M20 60 Q30 40 50 50 Q70 60 80 40" stroke="#dc3545" stroke-width="4"/>
+                       <line x1="40" y1="70" x2="60" y2="70" stroke="#dc3545" stroke-width="5"/>
+                       <line x1="50" y1="70" x2="50" y2="80" stroke="#dc3545" stroke-width="5"/>
+                       <path d="M35 30 L40 25 L45 30" stroke="#ffc107" stroke-width="4"/>
+                       <path d="M55 30 L60 25 L65 30" stroke="#ffc107" stroke-width="4"/>
+                       <circle cx="40" cy="38" r="3" fill="#dc3545"/>
+                       <circle cx="60" cy="38" r="3" fill="#dc3545"/>
+                       <path d="M45 60 Q50 65 55 60" stroke="#007bff" stroke-width="4"/>
+                   </svg>
+                </div>
+                <h2>วิทยาศาสตร์เพิ่มเติม 5 (ว23201)</h2>
+                <h3>โครงงานวิทยาศาสตร์เพื่อปรับปรุงหรือพัฒนาสิ่งแวดล้อม</h3>
+                <h1>คาบเรียนที่ 2:<br>ปัญหาสิ่งแวดล้อมรอบตัวเรา!</h1>
+
+                <p class="small-text">ชั้นมัธยมศึกษาปีที่ 3 | ภาคเรียนที่ 1 ปีการศึกษา 2568</p>
+                <p class="small-text">อาจารย์ผู้สอน: อาจารย์ชวดล ศรีบุญพิมพ์สวย</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Review of Session 1 -->
+        <div class="slide">
+            <div class="content">
+                 <!-- Graphic Area (Moved to Top) -->
+                 <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <rect x="5" y="5" width="90" height="50" rx="5"/>
+                       <line x1="15" y1="15" x2="85" y2="15"/>
+                       <line x1="15" y1="25" x2="75" y2="25"/>
+                       <line x1="15" y1="35" x2="65" y2="35"/>
+                       <line x1="15" y1="45" x2="85" y2="45"/>
+                       <path d="M70 30 L75 35 L85 25" stroke="#28a745"/>
+                   </svg>
+                </div>
+                <h2>ทบทวนความรู้จากคาบที่ 1</h2>
+                <p>ในคาบเรียนที่แล้ว เราได้เริ่มต้นทำความรู้จักกับรายวิชานี้ และเรียนรู้พื้นฐานสำคัญเกี่ยวกับสิ่งแวดล้อม</p>
+                <h3>นักเรียนจำอะไรเกี่ยวกับ "สิ่งแวดล้อม" ได้บ้างครับ?</h3>
+                <ul>
+                    <li><strong>ความหมาย:</strong> สิ่งแวดล้อมคือทุกสิ่งทุกอย่างที่อยู่รอบตัวเรา ทั้งมีชีวิตและไม่มีชีวิต</li>
+                    <li><strong>ความสำคัญ:</strong> เป็นแหล่งทรัพยากร ที่อยู่อาศัย ส่งผลต่อสุขภาพ และมีคุณค่าทางวัฒนธรรม</li>
+                    <li><strong>องค์ประกอบ:</strong> แบ่งเป็น 2 ประเภทใหญ่ๆ คือ:
+                        <ul>
+                            <li><strong>ทางกายภาพ (Physical/Abiotic):</strong> สิ่งไม่มีชีวิต เช่น อากาศ น้ำ ดิน แสงแดด อาคาร ถนน</li>
+                            <li><strong>ทางชีวภาพ (Biological/Biotic):</strong> สิ่งมีชีวิต เช่น พืช สัตว์ จุลินทรีย์ และมนุษย์</li>
+                        </ul>
+                    </li>
+                </ul>
+                 <div class="activity-box" style="max-width: 700px; margin-top: 20px;">
+                    <h4>กิจกรรมทบทวนสั้นๆ:</h4>
+                    <p>ลองยกตัวอย่างสิ่งแวดล้อม 1 อย่าง แล้วบอกว่าเป็นองค์ประกอบประเภทใด</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Introduction to Environmental Problems -->
+        <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#dc3545" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <path d="M50 10 L30 40 H70 L50 10 Z" fill="#dc3545" stroke="none"/>
+                       <path d="M30 40 Q20 60 50 70 Q80 60 70 40 Z" fill="#ffc107" stroke="none"/>
+                       <circle cx="50" cy="70" r="8" fill="#28a745"/>
+                       <circle cx="40" cy="50" r="5" fill="#dc3545"/>
+                       <circle cx="60" cy="50" r="5" fill="#dc3545"/>
+                       <path d="M45 60 Q50 65 55 60" stroke="#007bff" stroke-width="3"/>
+                       <path d="M30 40 L10 30 L5 40 L25 50 Z" fill="#cccccc" stroke="none"/>
+                       <path d="M70 40 L90 30 L95 40 L75 50 Z" fill="#cccccc" stroke="none"/>
+                   </svg>
+                </div>
+                <h2>เข้าสู่หัวข้อ: ปัญหาสิ่งแวดล้อม</h2>
+                <p>เมื่อสิ่งแวดล้อมมีความสำคัญต่อการดำรงชีวิตของเรา แล้วเกิดอะไรขึ้นเมื่อสิ่งแวดล้อมเริ่มเปลี่ยนแปลงไปในทางลบ?</p>
+                 <p style="font-size: 1.2em; color: #0056b3; font-weight: bold; text-align: center;">"ปัญหาสิ่งแวดล้อม" คือ สภาพของสิ่งแวดล้อมที่ <strong>เสื่อมโทรมลง</strong> หรือเกิดการเปลี่ยนแปลงที่ไม่พึงประสงค์ ซึ่งส่งผลกระทบต่อสิ่งมีชีวิตและการดำรงชีวิต</p>
+                 <p>ปัญหาสิ่งแวดล้อมส่วนใหญ่มีสาเหตุมาจาก <strong>กิจกรรมของมนุษย์</strong> แต่ก็อาจเกิดจากปัจจัยธรรมชาติได้เช่นกัน</p>
+                 <p>ในคาบนี้ เราจะมาสำรวจดูว่ามีปัญหาสิ่งแวดล้อมแบบไหนบ้าง ที่กำลังเกิดขึ้นรอบตัวเรา และทั่วโลก</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Types of Environmental Problems - Overview -->
+        <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <circle cx="50" cy="40" r="35" stroke="#28a745" stroke-dasharray="5 5"/>
+                       <circle cx="30" cy="30" r="10" fill="#dc3545"/> <!-- Pollution -->
+                       <rect x="65" y="20" width="15" height="20" rx="3" fill="#ffc107"/> <!-- Waste -->
+                       <path d="M35 55 L45 55 L40 65 Z" fill="#007bff"/> <!-- Climate Change -->
+                       <path d="M60 55 C60 55 65 50 70 55 S80 55 80 60 S75 65 70 60 S65 65 60 60 S60 55 60 55" fill="#17a2b8"/> <!-- Biodiversity -->
+                        <text x="30" y="30" font-size="10" fill="white" text-anchor="middle" alignment-baseline="middle">P</text>
+                         <text x="72.5" y="30" font-size="10" fill="white" text-anchor="middle" alignment-baseline="middle">W</text>
+                          <text x="40" y="55" font-size="10" fill="white" text-anchor="middle" alignment-baseline="middle">C</text>
+                           <text x="70" y="57.5" font-size="10" fill="white" text-anchor="middle" alignment-baseline="middle">B</text>
+                   </svg>
+                </div>
+                <h2>ประเภทของปัญหาสิ่งแวดล้อมที่พบบ่อย</h2>
+                 <p>ปัญหาสิ่งแวดล้อมมีหลากหลายรูปแบบ ขึ้นอยู่กับลักษณะของการเปลี่ยนแปลงและผลกระทบ ปัญหาที่พบบ่อย ได้แก่:</p>
+                 <ul>
+                     <li><strong>มลพิษ (Pollution):</strong> การปนเปื้อนของสารหรือพลังงานที่ไม่พึงประสงค์ในสิ่งแวดล้อม</li>
+                     <li><strong>ปัญหาขยะ (Waste Management):</strong> การจัดการของเสียที่ไม่เหมาะสม</li>
+                     <li><strong>การเปลี่ยนแปลงสภาพภูมิอากาศ (Climate Change):</strong> การเปลี่ยนแปลงของอุณหภูมิและรูปแบบสภาพอากาศโลกในระยะยาว</li>
+                     <li><strong>การสูญเสียความหลากหลายทางชีวภาพ (Biodiversity Loss):</strong> การลดลงหรือการสูญพันธุ์ของสิ่งมีชีวิตชนิดต่างๆ</li>
+                     <li>ปัญหาทรัพยากรธรรมชาติอื่นๆ เช่น การขาดแคลนน้ำ การทำลายป่า การเสื่อมโทรมของดิน</li>
+                 </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: Problem Type 1: Pollution -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <path d="M10 70 C20 50 30 50 40 70 H10 Z" fill="#dc3545"/> <!-- Soil Pollution -->
+                       <path d="M60 70 C70 50 80 50 90 70 H60 Z" fill="#dc3545"/> <!-- Soil Pollution -->
+                       <path d="M20 40 C30 20 70 20 80 40 H20 Z" fill="#ffc107"/> <!-- Air Pollution Base -->
+                       <circle cx="40" cy="30" r="5" fill="#333"/>
+                       <circle cx="55" cy="25" r="4" fill="#333"/>
+                       <circle cx="70" cy="30" r="6" fill="#333"/> <!-- Air Pollution Smoke -->
+                       <rect x="30" y="50" width="40" height="20" fill="#cccccc"/> <!-- Water body -->
+                       <path d="M35 60 Q45 55 50 60 Q55 65 65 60" stroke="#dc3545" stroke-width="3"/> <!-- Polluted Water -->
+                        <text x="50" y="15" font-size="8" text-anchor="middle" fill="#0056b3">AIR</text>
+                         <text x="50" y="75" font-size="8" text-anchor="middle" fill="#0056b3">SOIL</text>
+                          <text x="50" y="55" font-size="8" text-anchor="middle" fill="#0056b3">WATER</text>
+                   </svg>
+                </div>
+                <h2>ปัญหา: มลพิษ (Pollution)</h2>
+                <p><strong>มลพิษ</strong> คือ การที่สิ่งแวดล้อม (อากาศ น้ำ ดิน) ถูกปนเปื้อนด้วยสารหรือพลังงานที่ทำให้คุณภาพสิ่งแวดล้อมเสื่อมลง จนอาจเป็นอันตรายต่อสิ่งมีชีวิต</p>
+                 <h3>ตัวอย่างและสาเหตุ:</h3>
+                 <ul>
+                     <li><strong>มลพิษทางอากาศ:</strong> ควันจากรถยนต์ โรงงาน ไฟป่า (สาเหตุ: การเผาไหม้เชื้อเพลิง)</li>
+                     <li><strong>มลพิษทางน้ำ:</strong> น้ำเสียจากบ้านเรือน โรงงาน เกษตรกรรม (สาเหตุ: การทิ้งของเสียลงแหล่งน้ำโดยไม่บำบัด)</li>
+                     <li><strong>มลพิษทางดิน:</strong> สารเคมีจากโรงงานอุตสาหกรรม ขยะ สารกำจัดศัตรูพืช (สาเหตุ: การใช้สารเคมี การทิ้งขยะอันตราย)</li>
+                     <li><strong>มลพิษทางเสียง แสง ความร้อน:</strong> เสียงดังรบกวน แสงไฟจ้า ความร้อนสูง (สาเหตุ: กิจกรรมอุตสาหกรรม การคมนาคม แหล่งกำเนิดความร้อน)</li>
+                 </ul>
+                 <h3>ผลกระทบ:</h3>
+                 <ul>
+                     <li>ส่งผลเสียต่อ <strong>สุขภาพ</strong> มนุษย์ (โรคระบบทางเดินหายใจ, โรคผิวหนัง, ปัญหาสายตา/การได้ยิน)</li>
+                     <li>ทำลาย <strong>ระบบนิเวศ</strong> ทำให้สิ่งมีชีวิตตายหรือเจ็บป่วย</li>
+                     <li>สร้างความเสียหายต่อ <strong>อาคาร สิ่งก่อสร้าง</strong></li>
+                 </ul>
+            </div>
+         </div>
+
+         <!-- Slide 6: Problem Type 2: Waste -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <rect x="20" y="20" width="60" height="40" fill="#cccccc"/>
+                       <line x1="20" y1="20" x2="30" y2="10"/>
+                       <line x1="80" y1="20" x2="70" y2="10"/>
+                       <line x1="30" y1="10" x2="70" y2="10"/> <!-- Trash can shape -->
+                       <path d="M25 30 L75 30" stroke="#ffc107" stroke-width="4"/>
+                       <path d="M30 40 L70 40" stroke="#ffc107" stroke-width="4"/>
+                       <path d="M35 50 L65 50" stroke="#ffc107" stroke-width="4"/>
+                        <circle cx="40" cy="35" r="5" fill="#dc3545"/>
+                         <circle cx="60" cy="45" r="6" fill="#dc3545"/>
+                         <circle cx="50" cy="38" r="4" fill="#dc3545"/> <!-- Trash items -->
+                          <path d="M10 70 Q30 60 50 70 Q70 80 90 70 L80 60 H20 L10 70 Z" fill="#28a745"/> <!-- Ground -->
+                   </svg>
+                </div>
+                <h2>ปัญหา: ขยะ (Waste Management)</h2>
+                <p><strong>ปัญหาขยะ</strong> เกิดขึ้นเมื่อของเสียที่เกิดจากกิจกรรมต่างๆ ของมนุษย์ถูกทิ้งหรือจัดการอย่างไม่ถูกต้อง ทำให้เกิดการสะสมและปัญหามลพิษอื่นๆ ตามมา</p>
+                 <h3>ตัวอย่างและสาเหตุ:</h3>
+                 <ul>
+                     <li><strong>ขยะมูลฝอยทั่วไป:</strong> เศษอาหาร พลาสติก กระดาษ โลหะ (สาเหตุ: การบริโภคในชีวิตประจำวัน)</li>
+                     <li><strong>ขยะอุตสาหกรรม:</strong> ของเสียจากกระบวนการผลิต</li>
+                     <li><strong>ขยะอันตราย:</strong> แบตเตอรี่ สารเคมีหมดอายุ ขยะอิเล็กทรอนิกส์</li>
+                 </ul>
+                 <h3>ปัญหาจากการจัดการขยะที่ไม่ถูกต้อง:</h3>
+                 <ul>
+                     <li>การฝังกลบที่ไม่ถูกสุขลักษณะ: ทำให้ดินและน้ำใต้ดินปนเปื้อน</li>
+                     <li>การเผาขยะ: ทำให้เกิดมลพิษทางอากาศ (ฝุ่นละออง PM2.5, สารพิษ)</li>
+                     <li>ขยะตกค้างในสิ่งแวดล้อม: อุดตันทางน้ำ, สัตว์กินเข้าไป, ทำให้พื้นที่สกปรกไม่สวยงาม</li>
+                 </ul>
+            </div>
+         </div>
+
+          <!-- Slide 7: Problem Type 3: Climate Change -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <circle cx="50" cy="40" r="35" fill="#007bff" opacity="0.5"/> <!-- Earth outline -->
+                       <path d="M20 40 C30 30 70 30 80 40" stroke="#dc3545" stroke-width="4"/> <!-- Stress line -->
+                       <path d="M40 50 C45 45 55 45 60 50" stroke="#ffc107" stroke-width="4"/> <!-- Stress line -->
+                       <path d="M25 60 L35 50 M35 60 L25 50" stroke="#dc3545"/> <!-- Melted ice -->
+                       <path d="M75 60 L65 50 M65 60 L75 50" stroke="#dc3545"/> <!-- Melted ice -->
+                       <line x1="50" y1="15" x2="50" y2="25" stroke="#dc3545" stroke-width="4"/> <!-- Heat indicator -->
+                        <path d="M45 20 L50 15 L55 20" stroke="#dc3545" stroke-width="4"/> <!-- Heat indicator -->
+                   </svg>
+                </div>
+                <h2>ปัญหา: การเปลี่ยนแปลงสภาพภูมิอากาศ (Climate Change)</h2>
+                <p>หมายถึง การเปลี่ยนแปลงของอุณหภูมิและรูปแบบสภาพอากาศในระยะยาว ซึ่งส่วนใหญ่เกิดจาก <strong>กิจกรรมของมนุษย์ที่ปล่อยก๊าซเรือนกระจก</strong> (เช่น คาร์บอนไดออกไซด์, มีเทน) สู่ชั้นบรรยากาศมากเกินไป</p>
+                 <h3>สาเหตุหลัก:</h3>
+                 <ul>
+                     <li>การเผาไหม้เชื้อเพลิงฟอสซิล (น้ำมัน ก๊าซ ถ่านหิน) เพื่อผลิตพลังงาน การขนส่ง อุตสาหกรรม</li>
+                     <li>การทำลายป่า (ป่าช่วยดูดซับคาร์บอนไดออกไซด์)</li>
+                     <li>กิจกรรมทางการเกษตรและปศุสัตว์บางประเภท</li>
+                 </ul>
+                 <h3>ผลกระทบสำคัญ:</h3>
+                 <ul>
+                     <li>อุณหภูมิเฉลี่ยโลกสูงขึ้น (ภาวะโลกร้อน)</li>
+                     <li>การละลายของน้ำแข็งขั้วโลกและธารน้ำแข็ง -> ระดับน้ำทะเลสูงขึ้น</li>
+                     <li>การเกิดเหตุการณ์สภาพอากาศสุดขั้วบ่อยขึ้นและรุนแรงขึ้น (น้ำท่วม, ภัยแล้ง, พายุ, คลื่นความร้อน)</li>
+                     <li>การเปลี่ยนแปลงของฤดูกาลและระบบนิเวศ</li>
+                 </ul>
+            </div>
+         </div>
+
+          <!-- Slide 8: Problem Type 4: Biodiversity Loss -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <path d="M20 70 L30 60 V50 L10 40 L20 70 Z" fill="#28a745"/> <!-- Healthy Tree section -->
+                        <circle cx="20" cy="30" r="8" fill="#28a745"/> <!-- Leaf crown -->
+
+                        <path d="M50 70 L60 60 V50 L40 40 L50 70 Z" fill="#cccccc"/> <!-- Dying Tree section -->
+                        <path d="M45 30 C50 20 60 20 55 30 L50 35 Z" fill="#dc3545"/> <!-- Wilting leaves -->
+
+                         <path d="M80 70 L90 60 V50 L70 40 L80 70 Z" fill="#ffc107"/> <!-- Stump -->
+                         <rect x="75" y="55" width="10" height="15" fill="#8b4513"/>
+
+                         <path d="M15 35 Q25 25 30 35" stroke="#dc3545" stroke-width="3"/> <!-- Arrow pointing from healthy to problems -->
+                         <path d="M45 45 Q55 35 60 45" stroke="#dc3545" stroke-width="3"/>
+                         <path d="M75 45 Q85 35 90 45" stroke="#dc3545" stroke-width="3"/>
+
+                         <path d="M10 30 L20 20 L30 30 L20 40 Z" fill="#17a2b8"/> <!-- Healthy Ecosystem Element -->
+                         <path d="M70 30 L80 20 L90 30 L80 40 Z" fill="#cccccc"/> <!-- Fading Ecosystem Element -->
+                   </svg>
+                </div>
+                <h2>ปัญหา: การสูญเสียความหลากหลายทางชีวภาพ (Biodiversity Loss)</h2>
+                <p>คือ การลดจำนวนลงหรือการสูญพันธุ์ของสิ่งมีชีวิตชนิดต่างๆ รวมถึงการลดความหลากหลายทางพันธุกรรมและความหลากหลายของระบบนิเวศ</p>
+                 <p>ความหลากหลายทางชีวภาพมีความสำคัญอย่างยิ่งต่อความสมดุลของธรรมชาติและประโยชน์ที่มนุษย์ได้รับจากระบบนิเวศ</p>
+                 <h3>สาเหตุหลัก:</h3>
+                 <ul>
+                     <li><strong>การทำลายแหล่งที่อยู่อาศัย:</strong> การตัดไม้ทำลายป่า การเปลี่ยนพื้นที่ป่าเป็นพื้นที่เกษตร/อุตสาหกรรม/ชุมชน</li>
+                     <li><strong>มลพิษ:</strong> สารเคมีและมลพิษต่างๆ ทำลายสิ่งมีชีวิตและแหล่งที่อยู่</li>
+                     <li><strong>การเปลี่ยนแปลงสภาพภูมิอากาศ:</strong> สภาพอากาศที่เปลี่ยนไปทำให้สิ่งมีชีวิตปรับตัวไม่ได้</li>
+                     <li><strong>การรุกรานของชนิดพันธุ์ต่างถิ่น:</strong> สิ่งมีชีวิตต่างถิ่นเข้ามาแย่งชิงทรัพยากรหรือล่าสิ่งมีชีวิตพื้นเมือง</li>
+                     <li>การล่า การจับ การเก็บเกี่ยวสิ่งมีชีวิตมากเกินไป</li>
+                 </ul>
+                 <h3>ผลกระทบ:</h3>
+                 <ul>
+                     <li>ระบบนิเวศขาดความสมดุล อ่อนแอลง</li>
+                     <li>สูญเสียแหล่งอาหาร ยา และทรัพยากรอื่นๆ จากธรรมชาติ</li>
+                     <li>ส่งผลต่อความมั่นคงทางอาหารและน้ำ</li>
+                 </ul>
+            </div>
+         </div>
+
+        <!-- Slide 9: Interconnectedness of Problems -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <circle cx="30" cy="30" r="15" fill="#dc3545"/> <!-- Problem 1 -->
+                       <circle cx="70" cy="30" r="15" fill="#ffc107"/> <!-- Problem 2 -->
+                       <circle cx="50" cy="65" r="15" fill="#007bff"/> <!-- Problem 3 -->
+
+                       <path d="M40 35 Q50 50 45 60" stroke="#333" stroke-dasharray="5 5"/> <!-- Link 1-3 -->
+                        <path d="M60 35 Q50 50 55 60" stroke="#333" stroke-dasharray="5 5"/> <!-- Link 2-3 -->
+                         <path d="M35 25 Q50 20 65 25" stroke="#333" stroke-dasharray="5 5"/> <!-- Link 1-2 -->
+
+                         <text x="30" y="30" font-size="10" fill="white" text-anchor="middle" alignment-baseline="middle">มลพิษ</text>
+                         <text x="70" y="30" font-size="10" fill="white" text-anchor="middle" alignment-baseline="middle">ขยะ</text>
+                         <text x="50" y="65" font-size="10" fill="white" text-anchor="middle" alignment-baseline="middle">ภูมิอากาศ</text>
+                   </svg>
+                </div>
+                <h2>ปัญหาสิ่งแวดล้อมเชื่อมโยงกัน!</h2>
+                 <p>ปัญหาสิ่งแวดล้อมต่างๆ ที่กล่าวมา มักไม่ได้เกิดขึ้นอย่างโดดเดี่ยว แต่มีความ <strong>เชื่อมโยงและส่งผลกระทบถึงกัน</strong></p>
+                 <ul>
+                     <li>เช่น <strong>การเผาไหม้</strong> (สาเหตุของมลพิษทางอากาศ) ก็เป็นสาเหตุหลักของ <strong>การเปลี่ยนแปลงสภาพภูมิอากาศ</strong></li>
+                     <li><strong>มลพิษทางน้ำ</strong> ทำให้ <strong>สิ่งมีชีวิตในน้ำตาย</strong> ซึ่งนำไปสู่ <strong>การสูญเสียความหลากหลายทางชีวภาพ</strong></li>
+                     <li><strong>การเปลี่ยนแปลงสภาพภูมิอากาศ</strong> อาจทำให้ <strong>แหล่งที่อยู่อาศัย</strong> ของสิ่งมีชีวิตบางชนิดเปลี่ยนแปลงไป หรือเกิดภัยพิบัติ เช่น <strong>น้ำท่วม</strong> ซึ่งก็เกี่ยวข้องกับ <strong>ปัญหาขยะ</strong> ที่อุดตันทางน้ำ</li>
+                 </ul>
+                 <p>การเข้าใจความเชื่อมโยงนี้สำคัญมาก ในการคิดหาทางแก้ไขปัญหาแบบองค์รวม</p>
+            </div>
+         </div>
+
+         <!-- Slide 10: Levels of Environmental Problems -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <rect x="10" y="50" width="25" height="20" fill="#28a745"/> <!-- Local House -->
+                       <path d="M15 50 V40 L22.5 35 L30 40 V50 Z" fill="#28a745"/>
+                       <circle cx="22.5" cy="45" r="3" fill="#0056b3"/> <!-- Window -->
+
+                       <rect x="40" y="40" width="30" height="30" fill="#007bff"/> <!-- National Map -->
+                       <path d="M45 45 L65 45 L60 55 L50 60 Z" stroke="#ffffff" stroke-width="2"/>
+                        <text x="55" y="55" font-size="12" fill="white" text-anchor="middle">TH</text>
+
+
+                       <circle cx="80" cy="35" r="15" fill="#17a2b8"/> <!-- Globe -->
+                       <path d="M80 20 A15 15 0 0 0 80 50" stroke="#ffffff" stroke-width="2"/>
+                       <path d="M65 35 H95" stroke="#ffffff" stroke-width="2"/>
+
+                       <path d="M25 60 L40 45" stroke="#333" stroke-dasharray="5 5"/> <!-- Links -->
+                       <path d="M70 45 L80 35" stroke="#333" stroke-dasharray="5 5"/>
+                   </svg>
+                </div>
+                <h2>ปัญหาสิ่งแวดล้อมในระดับต่างๆ</h2>
+                 <p>เราสามารถพบปัญหาสิ่งแวดล้อมได้ตั้งแต่ระดับใกล้ตัว ไปจนถึงระดับที่ส่งผลกระทบต่อทั้งโลก</p>
+                 <div class="two-column">
+                     <div>
+                         <h3>ระดับชุมชน/ท้องถิ่น</h3>
+                         <p>ปัญหาที่พบเห็นได้ในบริเวณบ้าน โรงเรียน หมู่บ้าน หรืออำเภอของนักเรียน เช่น:</p>
+                         <ul>
+                             <li>ขยะเกลื่อนกลาดในชุมชน</li>
+                             <li>น้ำเสียในคลองใกล้บ้าน</li>
+                             <li>มลพิษทางอากาศ (เช่น PM2.5 ในบางช่วง)</li>
+                             <li>การบุกรุกพื้นที่สีเขียวในท้องถิ่น</li>
+                         </ul>
+                     </div>
+                      <div>
+                         <h3>ระดับประเทศและโลก</h3>
+                         <p>ปัญหาที่ส่งผลกระทบในวงกว้าง หรือข้ามพรมแดน เช่น:</p>
+                         <ul>
+                             <li>ปัญหามลพิษข้ามแดน (หมอกควัน)</li>
+                             <li>การจัดการขยะอิเล็กทรอนิกส์</li>
+                             <li>การเปลี่ยนแปลงสภาพภูมิอากาศโลก</li>
+                             <li>การลดลงของสัตว์ป่าใกล้สูญพันธุ์ทั่วโลก</li>
+                             <li>ปัญหามลพิษในมหาสมุทร</li>
+                         </ul>
+                      </div>
+                 </div>
+                  <p style="text-align: center; font-style: italic; margin-top: 20px;">ปัญหาในระดับเล็กๆ มักเป็นส่วนหนึ่งหรือส่งผลต่อปัญหาในระดับที่ใหญ่ขึ้นได้</p>
+             </div>
+         </div>
+
+         <!-- Slide 11: Activity 1: Media Analysis & Discussion Intro -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <rect x="10" y="15" width="80" height="50" rx="5" fill="#e9f5ff"/> <!-- Screen -->
+                       <line x1="20" y1="25" x2="50" y2="25" stroke="#333"/> <!-- Text line 1 -->
+                       <line x1="20" y1="35" x2="60" y2="35" stroke="#333"/> <!-- Text line 2 -->
+                       <rect x="20" y="45" width="40" height="15" fill="#dc3545"/> <!-- Problem representation -->
+                       <circle cx="75" cy="52.5" r="8" fill="#28a745"/> <!-- Observer eye -->
+                       <circle cx="75" cy="52.5" r="2" fill="#ffffff"/>
+                       <path d="M75 65 V70 H80" stroke="#333"/> <!-- Stand -->
+                   </svg>
+                </div>
+                <h2>กิจกรรม: ชม/วิเคราะห์สื่อและร่วมอภิปราย</h2>
+                 <div class="activity-box" style="max-width: 800px;">
+                     <h4>คำชี้แจงกิจกรรม:</h4>
+                     <p>อาจารย์จะนำเสนอภาพนิ่ง วีดิทัศน์ หรือข่าวสารสั้นๆ 
+                     <p>ขณะรับชม/รับฟัง ให้นักเรียนลองสังเกตและคิดตามว่า:</p>
+                     <ul>
+                         <li>นักเรียนเห็นปัญหา <strong>ประเภทใด</strong> บ้าง?</li>
+                         <li>นักเรียนคิดว่าอะไรคือ <strong>สาเหตุ</strong> ของปัญหาในสื่อนั้น?</li>
+                         <li>ปัญหานั้นส่ง <strong>ผลกระทบ</strong> ต่อใคร/อะไรบ้าง? และในระดับใด (ชุมชน/ประเทศ/โลก)?</li>
+                     </ul>
+                 </div>
+            </div>
+         </div>
+
+         <!-- Slide 12: Discussion after Activity 1 -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <circle cx="30" cy="40" r="15"/>
+                       <circle cx="70" cy="40" r="15"/>
+                       <path d="M30 25 Q20 10 50 10 Q80 10 70 25" fill="#e9f5ff"/> <!-- Speech bubbles -->
+                       <path d="M30 55 Q20 70 50 70 Q80 70 70 55" fill="#fff0f3"/> <!-- Speech bubbles -->
+                       <line x1="35" y1="35" x2="65" y2="45"/> <!-- Connection -->
+                       <line x1="35" y1="45" x2="65" y2="35"/> <!-- Connection -->
+                       <path d="M40 40 L50 40 L50 50 L40 50 Z" fill="#28a745"/> <!-- Central idea -->
+                   </svg>
+                </div>
+                <h2>อภิปรายร่วมกันหลังชมสื่อ</h2>
+                 <div class="activity-box" style="max-width: 800px; text-align: center;">
+                     <h4>แลกเปลี่ยนสิ่งที่นักเรียนสังเกตเห็นและคิด!</h4>
+                     <p>มาลองแชร์กันว่าจากสื่อที่ได้ชม นักเรียนเห็นปัญหาสิ่งแวดล้อมประเภทใดบ้าง?</p>
+                     <p>นักเรียนคิดว่าสาเหตุและผลกระทบของปัญหานั้นคืออะไร?</p>
+                     <p>มีปัญหาสิ่งแวดล้อมในสื่อใดบ้างที่นักเรียนรู้สึกว่าใกล้ตัวนักเรียน หรือเคยพบเห็นมาก่อน?</p>
+                 </div>
+                 <p style="text-align: center; margin-top: 20px; font-style: italic;">(อาจารย์: กระตุ้นให้นักเรียนหลายๆ คนแสดงความคิดเห็น เชื่อมโยงสิ่งที่นักเรียนเห็นกับเนื้อหาที่เรียนมา ส่งเสริมบรรยากาศการแลกเปลี่ยนเรียนรู้)</p>
+            </div>
+         </div>
+
+         <!-- Slide 13: Activity 2: Brainstorming Local Problems Intro -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <circle cx="50" cy="40" r="25" fill="#ffc107"/> <!-- Lightbulb -->
+                       <path d="M40 40 C35 30 65 30 60 40 Z" stroke="#0056b3"/> <!-- Filament -->
+                       <line x1="45" y1="50" x2="55" y2="50" stroke="#0056b3" stroke-width="4"/>
+                        <path d="M50 50 V60" stroke="#0056b3" stroke-width="4"/>
+                       <path d="M40 60 C35 65 65 65 60 60 Z" stroke="#0056b3" fill="#0056b3"/>
+
+                       <circle cx="30" cy="20" r="8" fill="#e9f5ff"/> <!-- Idea Bubble 1 -->
+                       <circle cx="70" cy="20" r="8" fill="#fff0f3"/> <!-- Idea Bubble 2 -->
+                        <path d="M35 25 L45 35" stroke="#333" stroke-dasharray="3 3"/>
+                         <path d="M65 25 L55 35" stroke="#333" stroke-dasharray="3 3"/>
+                   </svg>
+                </div>
+                <h2>กิจกรรมกลุ่ม: ระดมสมองปัญหาสิ่งแวดล้อมในท้องถิ่น</h2>
+                 <p>ตอนนี้ นักเรียนพอจะรู้จักประเภทและระดับของปัญหาสิ่งแวดล้อมแล้ว</p>
+                 <p>ถึงเวลาที่จะเริ่มคิดถึง <strong>โครงงาน</strong> ของนักเรียนแล้วครับ!</p>
+                 <div class="activity-box" style="max-width: 800px;">
+                     <h4>คำชี้แจงกิจกรรมกลุ่ม:</h4>
+                     <p>ให้นักเรียนแต่ละกลุ่ม (ยังไม่ต้องแบ่งกลุ่มถาวร อาจเป็นกลุ่มชั่วคราวหรือกลุ่มเดิมจากกิจกรรมก่อนหน้า) ช่วยกัน <strong>ระดมสมอง</strong> ปัญหาสิ่งแวดล้อมที่นักเรียนสนใจ หรือพบเห็นได้จริงใน <strong>ชุมชน/ท้องถิ่นของนักเรียน</strong> หรือ <strong>ในบริเวณโรงเรียน</strong></p>
+                     <p>ลองคิดถึง:</p>
+                     <ul>
+                         <li>มีปัญหาอะไรเกิดขึ้นบ้าง?</li>
+                         <li>ปัญหานั้นเกี่ยวข้องกับองค์ประกอบสิ่งแวดล้อม (กายภาพ/ชีวภาพ) อย่างไร?</li>
+                         <li>อะไรที่นักเรียนคิดว่าเป็นสาเหตุของปัญหานั้น?</li>
+                         <li>ปัญหานั้นส่งผลกระทบต่อใครบ้าง? (คน สิ่งมีชีวิตอื่นๆ ระบบนิเวศ)</li>
+                     </ul>
+                 </div>
+            </div>
+         </div>
+
+         <!-- Slide 14: Activity 2: Brainstorming Instructions -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <rect x="15" y="15" width="70" height="50" rx="5" fill="#ffffff"/> <!-- Notebook -->
+                       <line x1="25" y1="25" x2="75" y2="25" stroke="#333"/> <!-- Line 1 -->
+                       <line x1="25" y1="35" x2="65" y2="35" stroke="#333"/> <!-- Line 2 -->
+                       <line x1="25" y1="45" x2="75" y2="45" stroke="#333"/> <!-- Line 3 -->
+                       <line x1="25" y1="55" x2="65" y2="55" stroke="#333"/> <!-- Line 4 -->
+                       <rect x="70" y="10" width="10" height="20" rx="2" fill="#ffc107"/> <!-- Pencil -->
+                       <path d="M75 30 V35 L70 35 L75 30 Z" fill="#333"/>
+                       <circle cx="75" cy="38" r="2" fill="#dc3545"/> <!-- Eraser -->
+                   </svg>
+                </div>
+                <h2>วิธีการทำงานกลุ่มระดมสมอง</h2>
+                 <div class="activity-box" style="max-width: 800px;">
+                     <h4>ขั้นตอน:</h4>
+                     <p>1. นั่งรวมกลุ่มกับเพื่อนๆ (อาจารย์จะช่วยจัดกลุ่ม หรือให้นักเรียนรวมกลุ่มกันเอง 4-5 คน ตามความเหมาะสม)</p>
+                     <p>2. ทุกคนในกลุ่มช่วยกันเสนอไอเดียปัญหาที่พบเจอ</p>
+                     <p>3. <strong>จดบันทึก</strong> ปัญหาที่เสนอทั้งหมด อาจใช้กระดาษ สมุด หรือ Note ในมือถือ</p>
+                     <p>4. เลือกปัญหาที่กลุ่ม <strong>สนใจมากที่สุด</strong> มา 1-2 ปัญหา (ยังไม่ต้องตัดสินใจเลือกทำจริงๆ แค่เลือกที่น่าจะนำไปศึกษาต่อได้ก่อน)</p>
+                     <p>5. สำหรับปัญหาที่เลือก ให้ลองอธิบายสั้นๆ ว่า ปัญหานั้นคืออะไร มีลักษณะอย่างไร และทำไมกลุ่มถึงสนใจปัญหานี้เป็นพิเศษ</p>
+                     <p style="font-style: italic; text-align: center; margin-top: 15px;">(เน้นการมีส่วนร่วมของทุกคนในกลุ่ม)</p>
+                 </div>
+            </div>
+         </div>
+
+          <!-- Slide 15: Group Work Time -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <circle cx="30" cy="30" r="15"/>
+                       <circle cx="70" cy="30" r="15"/>
+                       <circle cx="50" cy="60" r="15"/>
+                       <path d="M30 45 L50 50 L70 45" stroke="#333"/> <!-- Connection lines -->
+                       <path d="M45 30 L55 30" stroke="#333"/> <!-- Connection lines -->
+                       <text x="30" y="30" font-size="10" fill="white" text-anchor="middle" alignment-baseline="middle">นักเรียน</text>
+                       <text x="70" y="30" font-size="10" fill="white" text-anchor="middle" alignment-baseline="middle">นักเรียน</text>
+                       <text x="50" y="60" font-size="10" fill="white" text-anchor="middle" alignment-baseline="middle">กลุ่ม</text>
+                        <path d="M50 10 V20" stroke="#28a745" stroke-width="4"/> <!-- Idea Spark -->
+                       <path d="M45 15 L55 15" stroke="#28a745" stroke-width="4"/> <!-- Idea Spark -->
+                       <path d="M47 17 L53 17" stroke="#28a745" stroke-width="4"/> <!-- Idea Spark -->
+
+                   </svg>
+                </div>
+                <h2>ช่วงเวลาทำงานกลุ่ม: ระดมสมอง!</h2>
+                <p style="font-size: 1.5em; color: #0056b3; font-weight: bold; text-align: center;">นักเรียนสามารถเริ่มระดมสมองปัญหาสิ่งแวดล้อมในท้องถิ่นได้เลยครับ!</p>
+                <p style="text-align: center; margin-top: 20px; font-style: italic;">อาจารย์จะเดินดูและให้คำแนะนำ หากมีข้อสงสัย ถามอาจารย์ได้เลยนะครับ</p>
+                 <div class="activity-box" style="max-width: 600px; text-align: center; background-color: #fff9e6; border-color: #ffc107;">
+                    <h4>เวลาทำงาน: ประมาณ 20-25 นาที</h4>
+                    <p>ใช้เวลานี้ให้คุ้มค่า พูดคุย แลกเปลี่ยนไอเดียกันอย่างเต็มที่ครับ!</p>
+                 </div>
+            </div>
+         </div>
+
+
+          <!-- Slide 16: Activity 3: Group Sharing Instructions -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <path d="M20 70 H80 V30 H60 L50 20 L40 30 H20 Z" fill="#e9f5ff"/> <!-- Presentation Stand -->
+                       <line x1="30" y1="35" x2="70" y2="35" stroke="#333"/>
+                       <line x1="30" y1="45" x2="60" y2="45" stroke="#333"/>
+                       <line x1="30" y1="55" x2="70" y2="55" stroke="#333"/> <!-- Content lines -->
+                       <circle cx="50" cy="10" r="8" fill="#28a745"/> <!-- Person head -->
+                       <line x1="50" y1="18" x2="50" y2="25" stroke="#28a745" stroke-width="4"/> <!-- Person body -->
+                       <line x1="40" y1="22" x2="60" y2="22" stroke="#28a745" stroke-width="4"/> <!-- Person arms -->
+                   </svg>
+                </div>
+                <h2>กิจกรรม: นำเสนอผลการระดมสมอง (สั้นๆ)</h2>
+                 <p>หลังจากที่แต่ละกลุ่มได้ระดมสมองและเลือกปัญหาที่สนใจแล้ว</p>
+                 <p>ขอเชิญตัวแทนแต่ละกลุ่ม <strong>นำเสนอสั้นๆ</strong> ให้เพื่อนๆ ฟัง</p>
+                 <div class="activity-box" style="max-width: 800px;">
+                     <h4>คำชี้แจงการนำเสนอ:</h4>
+                     <ul>
+                         <li>แต่ละกลุ่มใช้เวลา <strong>ไม่เกิน 2-3 นาที</strong></li>
+                         <li>บอก <strong>ปัญหา</strong> ที่กลุ่มเลือกที่น่าสนใจมา 1-2 ปัญหา</li>
+                         <li>อธิบายสั้นๆ ว่าปัญหานั้นคืออะไร</li>
+                         <li>บอก <strong>เหตุผล</strong> ที่กลุ่มสนใจปัญหานี้ (ทำไมถึงอยากศึกษา/แก้ไข)</li>
+                         <li>ยังไม่ต้องมีวิธีแก้ปัญหา แค่บอกปัญหาที่สนใจครับ</li>
+                     </ul>
+                      <p style="font-style: italic; text-align: center; margin-top: 15px;">(อาจารย์: ใช้กิจกรรมนี้เพื่อตรวจสอบความเข้าใจของนักเรียน และให้ข้อเสนอแนะเบื้องต้น รวมถึงอาจช่วยเชื่อมโยงปัญหากลุ่มที่คล้ายกัน)</p>
+                 </div>
+            </div>
+         </div>
+
+         <!-- Slide 17: Summary of Session 2 -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <rect x="10" y="15" width="80" height="50" rx="5" fill="#e9f5ff"/> <!-- Box -->
+                       <line x1="20" y1="25" x2="80" y2="25" stroke="#333"/> <!-- Summary line 1 -->
+                       <line x1="20" y1="35" x2="70" y2="35" stroke="#333"/> <!-- Summary line 2 -->
+                       <line x1="20" y1="45" x2="80" y2="45" stroke="#333"/> <!-- Summary line 3 -->
+                       <line x1="20" y1="55" x2="70" y2="55" stroke="#333"/> <!-- Summary line 4 -->
+                       <path d="M85 10 L80 15 L85 20" stroke="#28a745"/> <!-- Checkmark -->
+                       <path d="M85 20 L90 10" stroke="#28a745"/> <!-- Checkmark -->
+                   </svg>
+                </div>
+                <h2>สรุปการเรียนรู้ คาบที่ 2</h2>
+                 <p>ในคาบนี้ เราได้เรียนรู้และอภิปรายร่วมกันเกี่ยวกับ:</p>
+                 <ul>
+                     <li><strong>ความหมาย</strong> ของปัญหาสิ่งแวดล้อม</li>
+                     <li><strong>ประเภทหลักๆ</strong> ของปัญหาสิ่งแวดล้อม (มลพิษ, ขยะ, การเปลี่ยนแปลงสภาพภูมิอากาศ, การสูญเสียความหลากหลายทางชีวภาพ)</li>
+                     <li><strong>สาเหตุและผลกระทบ</strong> เบื้องต้นของปัญหาเหล่านี้</li>
+                     <li>การพบปัญหาใน <strong>ระดับต่างๆ</strong> (ชุมชน ประเทศ โลก) และความเชื่อมโยงของปัญหา</li>
+                 </ul>
+                 <p>นักเรียนได้เริ่มทำกิจกรรม <strong>ระดมสมอง</strong> เพื่อค้นหาปัญหาสิ่งแวดล้อมที่สนใจในท้องถิ่นของนักเรียน ซึ่งจะเป็นจุดเริ่มต้นสำคัญในการเลือกหัวข้อโครงงานต่อไป</p>
+            </div>
+         </div>
+
+         <!-- Slide 18: Looking Ahead: Session 3 -->
+         <div class="slide">
+              <div class="content">
+                   <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <path d="M20 70 L30 60 V30 L10 20 L20 70 Z" fill="#28a745"/> <!-- Looking up -->
+                       <circle cx="25" cy="15" r="8" fill="#ffc107"/> <!-- Lightbulb/Idea -->
+                       <path d="M25 23 V30" stroke="#ffc107" stroke-width="3"/>
+
+                       <path d="M80 70 L70 60 V30 L90 20 L80 70 Z" fill="#007bff"/> <!-- Planning/Organizing -->
+                       <rect x="65" y="35" width="10" height="10" fill="#ffffff"/> <!-- Boxes -->
+                       <rect x="75" y="40" width="10" height="10" fill="#ffffff"/>
+                       <rect x="60" y="45" width="10" height="10" fill="#ffffff"/>
+
+                        <line x1="30" y1="50" x2="70" y2="50" stroke="#333" stroke-dasharray="5 5"/> <!-- Path -->
+                         <circle cx="50" cy="50" r="5" fill="#dc3545"/> <!-- Problem dot -->
+                   </svg>
+                </div>
+                <h2>มองไปข้างหน้า: คาบเรียนต่อไป (คาบที่ 3)</h2>
+                 <p>ในคาบเรียนหน้า เราจะก้าวเข้าสู่ขั้นตอนที่สำคัญยิ่งขึ้น:</p>
+                 <ul>
+                     <li><strong>การสำรวจและระบุปัญหา</strong> สิ่งแวดล้อมในท้องถิ่น/โรงเรียนอย่างเจาะลึกมากขึ้น (ตามแผนการสอน)</li>
+                     <li><strong>การคัดเลือกปัญหา</strong> ที่น่าสนใจที่สุดและสามารถนำไปพัฒนาเป็นโครงงานได้จริง</li>
+                     <li>การ <strong>รวมกลุ่มทำโครงงาน</strong> อย่างเป็นทางการ (4-5 คนต่อกลุ่ม)</li>
+                 </ul>
+                 <p style="font-weight: bold; text-align: center; margin-top: 20px;">นักเรียนที่ยังไม่มีกลุ่ม หรือยังไม่แน่ใจเรื่องปัญหา เตรียมตัวให้พร้อมสำหรับการตัดสินใจเลือกหัวข้อและกลุ่มในคาบหน้านะครับ!</p>
+             </div>
+         </div>
+
+         <!-- Slide 19: Q&A / Discussion -->
+         <div class="slide">
+             <div class="content">
+                  <!-- Graphic Area (Moved to Top) -->
+                  <div class="graphic-area">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none" stroke="#0056b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                       <path d="M20 20 H80 V60 H60 L50 70 L40 60 H20 Z" fill="#e9f5ff"/> <!-- Speech bubble -->
+                       <line x1="30" y1="30" x2="70" y2="30" stroke="#333"/> <!-- Text line 1 -->
+                       <line x1="30" y1="40" x2="60" y2="40" stroke="#333"/> <!-- Text line 2 -->
+                       <line x1="30" y1="50" x2="70" y2="50" stroke="#333"/> <!-- Text line 3 -->
+                       <circle cx="15" cy="65" r="8" fill="#ffc107"/> <!-- Question mark person -->
+                       <path d="M15 57 V60" stroke="#ffc107" stroke-width="3"/>
+                       <circle cx="15" cy="55" r="2" fill="#ffc107"/>
+                       <circle cx="85" cy="65" r="8" fill="#28a745"/> <!-- Answer person -->
+                        <line x1="80" y1="60" x2="90" y2="60" stroke="#28a745" stroke-width="3"/>
+                   </svg>
+                </div>
+                <h2>คำถาม / แลกเปลี่ยน</h2>
+                 <p style="font-size: 1.5em; color: #0056b3; font-weight: bold; text-align: center;">มีส่วนไหนของเนื้อหา หรือกิจกรรมในวันนี้ ที่นักเรียนยังมีข้อสงสัย หรือมีคำถามเพิ่มเติมไหมครับ?</p>
+                 <div class="activity-box" style="max-width: 700px; text-align: center;">
+                    <h4>ช่วงเวลาซักถาม</h4>
+                    <p>อาจารย์พร้อมตอบคำถามของนักเรียนทุกคน</p>
+                    <p>ถ้ามีข้อสงสัยเกี่ยวกับการระดมสมองปัญหา หรือการเตรียมตัวสำหรับคาบหน้า ถามได้เลยนะครับ!</p>
+                </div>
+            </div>
+         </div>
+
+
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons">
+        <button onclick="prevSlide()" id="prevBtn">ก่อนหน้า</button>
+        <button onclick="nextSlide()" id="nextBtn">ถัดไป</button>
+    </div>
+
+    <!-- Page Number -->
+    <div class="page-number">
+        สไลด์ <span id="currentSlide">1</span> จาก <span id="totalSlides"></span>
+    </div>
+
+    <script>
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        totalSlidesSpan.textContent = slides.length;
+
+        function showSlide(index) {
+            if (index < 0) {
+                slideIndex = 0;
+            } else if (index >= slides.length) {
+                slideIndex = slides.length - 1;
+            } else {
+                slideIndex = index;
+            }
+
+            // Apply opacity transition
+            slides.forEach(slide => slide.style.opacity = 0); // Fade all out
+            setTimeout(() => { // Delay showing the new slide slightly
+                 slides.forEach((slide, i) => {
+                    slide.classList.remove('active');
+                    if (i === slideIndex) {
+                         slide.classList.add('active');
+                         slide.style.opacity = 1; // Fade the active one in
+                    }
+                });
+            }, 100); // Small delay for fade effect
+
+
+            currentSlideSpan.textContent = slideIndex + 1;
+
+            // Update button states
+            prevBtn.disabled = slideIndex === 0;
+            nextBtn.disabled = slideIndex === slides.length - 1;
+        }
+
+        function nextSlide() {
+            showSlide(slideIndex + 1);
+        }
+
+        function prevSlide() {
+            showSlide(slideIndex - 1);
+        }
+
+        // Initialize the first slide with fade in
+        showSlide(slideIndex);
+
+
+        // Optional: Add keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight') {
+                nextSlide();
+            } else if (event.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Optional: Add click navigation (e.g., click anywhere to go next)
+        // document.querySelector('.slideshow-container').addEventListener('click', nextSlide);
+
+
+    </script>
+
+</body>
+</html>
