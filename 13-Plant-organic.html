@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ห้องปฏิบัติการจำลอง - การทดสอบสารอาหารในพืช</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Sarabun', sans-serif; }
+        .test-result { transition: all 0.3s ease; }
+        .positive-starch { background-color: #4c1d95; color: white; }
+        .positive-protein { background-color: #7c3aed; color: white; }
+        .positive-fat { background-color: rgba(0,0,0,0.1); }
+        .sample-card { transition: transform 0.2s ease; }
+        .sample-card:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6 shadow-lg">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl md:text-3xl font-bold mb-2">🧪 ห้องปฏิบัติการจำลอง</h1>
+            <p class="text-lg opacity-90">การทดสอบสารอาหารในพืช</p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto p-4 md:p-6">
+        <!-- Instructions -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                📋 คำชี้แจง
+            </h2>
+            <p class="text-gray-700 leading-relaxed">
+                ให้ผู้เรียนประเมินตัวอย่างที่ให้ไว้ต่อไปนี้ โดยทดสอบกับสารละลายทั้ง 3 ชนิด 
+                (สารละลายไอโอดีน, สารละลายไบยูเร็ต, ถูกับกระดาษ) จากนั้นบันทึกผลที่ได้ว่าเป็นอย่างไร
+            </p>
+        </div>
+
+        <!-- Test Methods Reference -->
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-purple-100 rounded-xl p-4 border-l-4 border-purple-500">
+                <h3 class="font-bold text-purple-800 mb-2">🧪 การทดสอบแป้ง</h3>
+                <p class="text-sm text-purple-700 mb-1"><strong>วิธี:</strong> สารละลายไอโอดีน</p>
+                <p class="text-sm text-purple-700"><strong>ผลบวก:</strong> สีน้ำเงินแกมม่วง</p>
+            </div>
+            <div class="bg-indigo-100 rounded-xl p-4 border-l-4 border-indigo-500">
+                <h3 class="font-bold text-indigo-800 mb-2">🧪 การทดสอบโปรตีน</h3>
+                <p class="text-sm text-indigo-700 mb-1"><strong>วิธี:</strong> สารละลายไบยูเร็ต</p>
+                <p class="text-sm text-indigo-700"><strong>ผลบวก:</strong> สีม่วง</p>
+            </div>
+            <div class="bg-gray-100 rounded-xl p-4 border-l-4 border-gray-500">
+                <h3 class="font-bold text-gray-800 mb-2">🧪 การทดสอบไขมัน</h3>
+                <p class="text-sm text-gray-700 mb-1"><strong>วิธี:</strong> ถูกับกระดาษขาว</p>
+                <p class="text-sm text-gray-700"><strong>ผลบวก:</strong> กระดาษโปร่งแสง</p>
+            </div>
+        </div>
+
+        <!-- Sample Selection -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                🔍 เลือกตัวอย่างที่ไม่ทราบชนิดสำหรับการทดสอบ
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="sample-card bg-gray-100 rounded-lg p-6 cursor-pointer border-2 border-transparent hover:border-blue-400" onclick="selectSample('ตัวอย่างที่ 1', 'sample1')">
+                    <div class="text-4xl mb-3 text-center">🧪</div>
+                    <p class="text-center font-medium text-lg">ตัวอย่างที่ 1</p>
+                    <p class="text-center text-sm text-gray-600 mt-2">ตัวอย่างสีขาว ผงละเอียด</p>
+                </div>
+                <div class="sample-card bg-gray-100 rounded-lg p-6 cursor-pointer border-2 border-transparent hover:border-blue-400" onclick="selectSample('ตัวอย่างที่ 2', 'sample2')">
+                    <div class="text-4xl mb-3 text-center">🧪</div>
+                    <p class="text-center font-medium text-lg">ตัวอย่างที่ 2</p>
+                    <p class="text-center text-sm text-gray-600 mt-2">ตัวอย่างสีเหลือง เป็นเม็ดเล็ก</p>
+                </div>
+                <div class="sample-card bg-gray-100 rounded-lg p-6 cursor-pointer border-2 border-transparent hover:border-blue-400" onclick="selectSample('ตัวอย่างที่ 3', 'sample3')">
+                    <div class="text-4xl mb-3 text-center">🧪</div>
+                    <p class="text-center font-medium text-lg">ตัวอย่างที่ 3</p>
+                    <p class="text-center text-sm text-gray-600 mt-2">ตัวอย่างสีขาว เนื้อแข็ง</p>
+                </div>
+            </div>
+            <div id="selectedSample" class="text-center text-gray-600 italic">
+                กรุณาเลือกตัวอย่างที่ต้องการทดสอบ
+            </div>
+        </div>
+
+        <!-- Testing Interface -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                🔬 ทำการทดสอบ
+            </h2>
+            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                <button id="testStarch" class="bg-purple-500 hover:bg-purple-600 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" onclick="performTest('starch')" disabled>
+                    ทดสอบด้วยไอโอดีน
+                </button>
+                <button id="testProtein" class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" onclick="performTest('protein')" disabled>
+                    ทดสอบด้วยไบยูเร็ต
+                </button>
+                <button id="testFat" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" onclick="performTest('fat')" disabled>
+                    ทดสอบด้วยกระดาษ
+                </button>
+            </div>
+            
+            <!-- Test Results Display -->
+            <div id="testResults" class="hidden">
+                <h3 class="font-bold text-gray-800 mb-3">ผลการทดสอบ:</h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div id="starchResult" class="test-result p-4 rounded-lg border-2 border-gray-200 text-center">
+                        <p class="font-medium mb-2">การทดสอบแป้ง</p>
+                        <div class="result-content">รอการทดสอบ</div>
+                    </div>
+                    <div id="proteinResult" class="test-result p-4 rounded-lg border-2 border-gray-200 text-center">
+                        <p class="font-medium mb-2">การทดสอบโปรตีน</p>
+                        <div class="result-content">รอการทดสอบ</div>
+                    </div>
+                    <div id="fatResult" class="test-result p-4 rounded-lg border-2 border-gray-200 text-center">
+                        <p class="font-medium mb-2">การทดสอบไขมัน</p>
+                        <div class="result-content">รอการทดสอบ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sample Identification -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6" id="identificationSection" style="display: none;">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                🎯 ระบุชนิดของตัวอย่าง
+            </h2>
+            <div class="bg-blue-50 rounded-lg p-4 mb-4">
+                <p class="text-blue-800 mb-3">จากผลการทดสอบ ให้นักเรียนคาดเดาว่าตัวอย่างนี้คืออะไร:</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <button class="identification-btn bg-white border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 p-3 rounded-lg transition-colors" onclick="makeGuess('ข้าว')">
+                        🌾 ข้าว
+                    </button>
+                    <button class="identification-btn bg-white border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 p-3 rounded-lg transition-colors" onclick="makeGuess('ถั่วเหลือง')">
+                        🫘 ถั่วเหลือง
+                    </button>
+                    <button class="identification-btn bg-white border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 p-3 rounded-lg transition-colors" onclick="makeGuess('มะพร้าว')">
+                        🥥 มะพร้าว
+                    </button>
+                    <button class="identification-btn bg-white border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 p-3 rounded-lg transition-colors" onclick="makeGuess('มันเทศ')">
+                        🍠 มันเทศ
+                    </button>
+                </div>
+            </div>
+            <div id="guessResult" class="hidden mt-4"></div>
+        </div>
+
+        <!-- Data Recording Table -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                📊 ตารางบันทึกผลการทดสอบ
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border border-gray-300 p-3 text-left font-medium">สารตัวอย่าง</th>
+                            <th class="border border-gray-300 p-3 text-center font-medium">สารละลายไอโอดีน</th>
+                            <th class="border border-gray-300 p-3 text-center font-medium">สารละลายไบยูเร็ต</th>
+                            <th class="border border-gray-300 p-3 text-center font-medium">ถูกับกระดาษ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTable">
+                        <tr>
+                            <td class="border border-gray-300 p-3">สารตัวอย่างที่ 1</td>
+                            <td class="border border-gray-300 p-3 text-center">-</td>
+                            <td class="border border-gray-300 p-3 text-center">-</td>
+                            <td class="border border-gray-300 p-3 text-center">-</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 p-3">สารตัวอย่างที่ 2</td>
+                            <td class="border border-gray-300 p-3 text-center">-</td>
+                            <td class="border border-gray-300 p-3 text-center">-</td>
+                            <td class="border border-gray-300 p-3 text-center">-</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 p-3">สารตัวอย่างที่ 3</td>
+                            <td class="border border-gray-300 p-3 text-center">-</td>
+                            <td class="border border-gray-300 p-3 text-center">-</td>
+                            <td class="border border-gray-300 p-3 text-center">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-2">
+                <button onclick="saveToTable()" class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors" id="saveButton" disabled>
+                    บันทึกผลลงตาราง
+                </button>
+                <button onclick="clearTable()" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                    ล้างตาราง
+                </button>
+                <button onclick="resetExperiment()" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                    เริ่มการทดลองใหม่
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="bg-gradient-to-r from-green-100 to-blue-100 rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                📚 สรุปความรู้
+            </h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-bold text-green-800 mb-3">สารอินทรีย์ในพืช 4 ชนิด:</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>คาร์โบไฮเดรต</li>
+                        <li class="flex items-center"><span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>โปรตีน</li>
+                        <li class="flex items-center"><span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>ไขมัน</li>
+                        <li class="flex items-center"><span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>กรดนิวคลีอิก</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-blue-800 mb-3">การสะสมสารอาหาร:</h3>
+                    <ul class="space-y-2 text-gray-700 text-sm">
+                        <li><strong>คาร์โบไฮเดรต:</strong> น้ำตาล (ผลไม้), แป้ง (ข้าว, มันเทศ)</li>
+                        <li><strong>โปรตีน:</strong> เมล็ด (ถั่วเหลือง, ถั่วลิสง)</li>
+                        <li><strong>ไขมัน:</strong> เมล็ด (มะพร้าว, ทานตะวัน)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSample = null;
+        let currentSampleType = null;
+        let testResults = {
+            starch: null,
+            protein: null,
+            fat: null
+        };
+        let tableRowCount = 0;
+
+        // Unknown sample data with expected results (students don't know what these are)
+        const sampleData = {
+            sample1: { name: 'ตัวอย่างที่ 1', starch: true, protein: false, fat: false, actualSource: 'แป้งข้าวโพด' },
+            sample2: { name: 'ตัวอย่างที่ 2', starch: false, protein: true, fat: true, actualSource: 'ถั่วเหลืองบด' },
+            sample3: { name: 'ตัวอย่างที่ 3', starch: false, protein: false, fat: true, actualSource: 'เนื้อมะพร้าวแห้ง' }
+        };
+
+        function selectSample(sampleName, sampleType) {
+            currentSample = sampleName;
+            currentSampleType = sampleType;
+            
+            // Update UI
+            document.getElementById('selectedSample').innerHTML = `
+                <span class="text-green-600 font-medium">✓ เลือกแล้ว: ${sampleName}</span>
+            `;
+            
+            // Enable test buttons
+            document.getElementById('testStarch').disabled = false;
+            document.getElementById('testProtein').disabled = false;
+            document.getElementById('testFat').disabled = false;
+            
+            // Reset test results
+            testResults = { starch: null, protein: null, fat: null };
+            document.getElementById('testResults').classList.add('hidden');
+            document.getElementById('saveButton').disabled = true;
+            
+            // Highlight selected sample
+            document.querySelectorAll('.sample-card').forEach(card => {
+                card.classList.remove('border-blue-400', 'bg-blue-50');
+            });
+            event.target.closest('.sample-card').classList.add('border-blue-400', 'bg-blue-50');
+        }
+
+        function performTest(testType) {
+            if (!currentSampleType) return;
+            
+            const sample = sampleData[currentSampleType];
+            let result, resultText, resultClass;
+            
+            // Simulate test delay
+            const button = document.getElementById(`test${testType.charAt(0).toUpperCase() + testType.slice(1)}`);
+            button.disabled = true;
+            button.innerHTML = 'กำลังทดสอบ...';
+            
+            setTimeout(() => {
+                switch(testType) {
+                    case 'starch':
+                        result = sample.starch;
+                        resultText = result ? 'สีน้ำเงินแกมม่วง (บวก)' : 'ไม่เปลี่ยนสี (ลบ)';
+                        resultClass = result ? 'positive-starch' : 'bg-gray-100';
+                        break;
+                    case 'protein':
+                        result = sample.protein;
+                        resultText = result ? 'สีม่วง (บวก)' : 'ไม่เปลี่ยนสี (ลบ)';
+                        resultClass = result ? 'positive-protein' : 'bg-gray-100';
+                        break;
+                    case 'fat':
+                        result = sample.fat;
+                        resultText = result ? 'กระดาษโปร่งแสง (บวก)' : 'กระดาษไม่โปร่งแสง (ลบ)';
+                        resultClass = result ? 'positive-fat' : 'bg-gray-100';
+                        break;
+                }
+                
+                testResults[testType] = result;
+                
+                // Update result display
+                const resultElement = document.getElementById(`${testType}Result`);
+                resultElement.className = `test-result p-4 rounded-lg border-2 border-gray-200 text-center ${resultClass}`;
+                resultElement.querySelector('.result-content').textContent = resultText;
+                
+                // Show results section
+                document.getElementById('testResults').classList.remove('hidden');
+                
+                // Re-enable button
+                button.disabled = false;
+                button.innerHTML = button.innerHTML.replace('กำลังทดสอบ...', 
+                    testType === 'starch' ? 'ทดสอบด้วยไอโอดีน' :
+                    testType === 'protein' ? 'ทดสอบด้วยไบยูเร็ต' : 'ทดสอบด้วยกระดาษ');
+                
+                // Check if all tests completed
+                if (testResults.starch !== null && testResults.protein !== null && testResults.fat !== null) {
+                    document.getElementById('saveButton').disabled = false;
+                    document.getElementById('identificationSection').style.display = 'block';
+                }
+            }, 1500);
+        }
+
+        function makeGuess(guess) {
+            if (!currentSampleType) return;
+            
+            const sample = sampleData[currentSampleType];
+            const resultDiv = document.getElementById('guessResult');
+            
+            // Determine correct answer based on test results
+            let correctAnswer = '';
+            if (testResults.starch && !testResults.protein && !testResults.fat) {
+                correctAnswer = 'ข้าว'; // or similar starch-rich food
+            } else if (!testResults.starch && testResults.protein && testResults.fat) {
+                correctAnswer = 'ถั่วเหลือง'; // protein and fat rich
+            } else if (!testResults.starch && !testResults.protein && testResults.fat) {
+                correctAnswer = 'มะพร้าว'; // fat rich
+            } else if (testResults.starch && !testResults.protein && !testResults.fat) {
+                correctAnswer = 'มันเทศ'; // starch rich
+            }
+            
+            const isCorrect = guess === correctAnswer;
+            
+            resultDiv.className = `mt-4 p-4 rounded-lg ${isCorrect ? 'bg-green-100 border-l-4 border-green-500' : 'bg-red-100 border-l-4 border-red-500'}`;
+            
+            if (isCorrect) {
+                resultDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">✅</span>
+                        <div>
+                            <p class="font-bold text-green-800">ถูกต้อง!</p>
+                            <p class="text-green-700">คำตอบของคุณคือ "${guess}" ซึ่งสอดคล้องกับผลการทดสอบ</p>
+                            <p class="text-sm text-green-600 mt-1">ตัวอย่างจริง: ${sample.actualSource}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">❌</span>
+                        <div>
+                            <p class="font-bold text-red-800">ไม่ถูกต้อง</p>
+                            <p class="text-red-700">คำตอบที่ถูกต้องคือ "${correctAnswer}" ตามผลการทดสอบ</p>
+                            <p class="text-sm text-red-600 mt-1">ลองดูผลการทดสอบอีกครั้งและเปรียบเทียบกับความรู้เรื่องสารอาหารในพืช</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            resultDiv.classList.remove('hidden');
+            
+            // Disable identification buttons after guess
+            document.querySelectorAll('.identification-btn').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+        }
+
+        function saveToTable() {
+            if (!currentSample || testResults.starch === null || testResults.protein === null || testResults.fat === null) {
+                return;
+            }
+            
+            tableRowCount++;
+            const tableBody = document.getElementById('dataTable');
+            const rows = tableBody.querySelectorAll('tr');
+            
+            if (tableRowCount <= 3) {
+                const row = rows[tableRowCount - 1];
+                const cells = row.querySelectorAll('td');
+                
+                cells[0].textContent = `${currentSample}`;
+                cells[1].textContent = testResults.starch ? 'สีน้ำเงินแกมม่วง (+)' : 'ไม่เปลี่ยนสี (-)';
+                cells[2].textContent = testResults.protein ? 'สีม่วง (+)' : 'ไม่เปลี่ยนสี (-)';
+                cells[3].textContent = testResults.fat ? 'โปร่งแสง (+)' : 'ไม่โปร่งแสง (-)';
+                
+                // Add color coding
+                cells[1].className = testResults.starch ? 'border border-gray-300 p-3 text-center bg-purple-100' : 'border border-gray-300 p-3 text-center';
+                cells[2].className = testResults.protein ? 'border border-gray-300 p-3 text-center bg-indigo-100' : 'border border-gray-300 p-3 text-center';
+                cells[3].className = testResults.fat ? 'border border-gray-300 p-3 text-center bg-gray-100' : 'border border-gray-300 p-3 text-center';
+            }
+            
+            // Show success message
+            const button = document.getElementById('saveButton');
+            const originalText = button.textContent;
+            button.textContent = '✓ บันทึกแล้ว';
+            button.classList.remove('bg-green-500', 'hover:bg-green-600');
+            button.classList.add('bg-green-600');
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.classList.remove('bg-green-600');
+                button.classList.add('bg-green-500', 'hover:bg-green-600');
+            }, 2000);
+        }
+
+        function clearTable() {
+            const tableBody = document.getElementById('dataTable');
+            const rows = tableBody.querySelectorAll('tr');
+            
+            rows.forEach((row, index) => {
+                const cells = row.querySelectorAll('td');
+                cells[0].textContent = `สารตัวอย่างที่ ${index + 1}`;
+                cells[1].textContent = '-';
+                cells[2].textContent = '-';
+                cells[3].textContent = '-';
+                cells[1].className = 'border border-gray-300 p-3 text-center';
+                cells[2].className = 'border border-gray-300 p-3 text-center';
+                cells[3].className = 'border border-gray-300 p-3 text-center';
+            });
+            
+            tableRowCount = 0;
+        }
+
+        function resetExperiment() {
+            currentSample = null;
+            currentSampleType = null;
+            testResults = { starch: null, protein: null, fat: null };
+            tableRowCount = 0;
+            
+            // Reset UI
+            document.getElementById('selectedSample').innerHTML = 'กรุณาเลือกตัวอย่างที่ต้องการทดสอบ';
+            document.getElementById('testResults').classList.add('hidden');
+            document.getElementById('identificationSection').style.display = 'none';
+            document.getElementById('guessResult').classList.add('hidden');
+            
+            // Disable buttons
+            document.getElementById('testStarch').disabled = true;
+            document.getElementById('testProtein').disabled = true;
+            document.getElementById('testFat').disabled = true;
+            document.getElementById('saveButton').disabled = true;
+            
+            // Reset sample selection
+            document.querySelectorAll('.sample-card').forEach(card => {
+                card.classList.remove('border-blue-400', 'bg-blue-50');
+            });
+            
+            // Reset identification buttons
+            document.querySelectorAll('.identification-btn').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
+            
+            // Clear table
+            clearTable();
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'969a9e2dc0261d37',t:'MTc1NDI3NDQ3MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
