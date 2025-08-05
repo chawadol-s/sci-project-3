@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immune Hero: ภารกิจพิทักษ์ร่างกาย</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .health-bar {
+            background: linear-gradient(90deg, #ff6b6b 0%, #feca57 50%, #48dbfb 100%);
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .virus-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-600 to-blue-600">
+    <!-- Game Container -->
+    <div class="max-w-md mx-auto bg-white min-h-screen relative overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 relative">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-lg font-bold">🛡️ Immune Hero</h1>
+                    <p class="text-sm opacity-90">ภารกิจพิทักษ์ร่างกาย</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm">สุขภาพ</div>
+                    <div class="w-20 bg-white bg-opacity-30 rounded-full p-1">
+                        <div id="healthBar" class="health-bar w-full"></div>
+                    </div>
+                    <div class="text-xs mt-1">คะแนน: <span id="score">0</span></div>
+                </div>
+            </div>
+            
+            <!-- Session Stats Bar -->
+            <div id="sessionStats" class="mt-3 pt-3 border-t border-white border-opacity-30 hidden">
+                <div class="flex justify-between items-center text-sm">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <span class="text-yellow-300">🏆</span>
+                            <span class="ml-1">คะแนนรวม: <span id="sessionScore" class="font-bold">0</span></span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-blue-300">⏱️</span>
+                            <span class="ml-1">เวลารวม: <span id="sessionTime" class="font-bold">0s</span></span>
+                        </div>
+                    </div>
+                    <div class="text-xs opacity-75">
+                        เคส <span id="sessionMission">1</span>/9
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="p-4">
+            
+            <!-- Story Introduction Screen -->
+            <div id="storyIntro" class="slide-in text-center">
+                <div class="bg-gradient-to-b from-blue-50 to-purple-50 rounded-xl p-6 mb-6">
+                    <div class="text-6xl mb-4 pulse-animation">🏥</div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">ยินดีต้อนรับสู่โรงพยาบาลภูมิคุ้มกัน</h2>
+                    
+                    <div class="text-left bg-white p-4 rounded-lg mb-6 shadow-sm">
+                        <p class="text-gray-700 mb-3">🩺 <strong>คุณคือหมอใหม่</strong> ที่เพิ่งเข้ามาทำงานในโรงพยาบาลชั้นนำ</p>
+                        
+                        <p class="text-gray-700 mb-3">📚 วันนี้คุณจะได้เรียนรู้เกี่ยวกับ <strong>ระบบภูมิคุ้มกัน</strong> ผ่านการรักษาผู้ป่วย 9 ราย</p>
+                        
+                        <p class="text-gray-700 mb-3">⏰ แต่ละเคสมีเวลาจำกัด คุณต้องตัดสินใจรักษาอย่างรวดเร็วและแม่นยำ</p>
+                        
+                        <p class="text-gray-700 mb-3">🏆 คะแนนของคุณขึ้นอยู่กับ <strong>ความเร็ว</strong> และ <strong>ความถูกต้อง</strong> ในการรักษา</p>
+                        
+                        <div class="bg-yellow-100 p-3 rounded-lg mt-4">
+                            <p class="text-yellow-800 text-sm">💡 <strong>เป้าหมาย:</strong> ผ่านทุกเคสเพื่อเป็นหมอผู้เชี่ยวชาญด้านภูมิคุ้มกัน!</p>
+                        </div>
+                    </div>
+                    
+                    <button onclick="startGame()" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg pulse-animation hover:from-blue-600 hover:to-purple-700 transition-all">
+                        🚀 เริ่มการผจญภัย
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mission Progress Screen -->
+            <div id="missionProgress" class="slide-in hidden">
+                <div class="bg-white rounded-xl p-4 mb-4 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-lg font-bold text-gray-800">📋 ความคืบหนา</h2>
+                        <div class="text-sm text-gray-600">เคส <span id="currentMissionNum">1</span>/9</div>
+                    </div>
+                    
+                    <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
+                        <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500" style="width: 11%"></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-blue-50 p-2 rounded-lg">
+                            <div class="text-lg font-bold text-blue-600" id="totalScore">0</div>
+                            <div class="text-xs text-gray-600">คะแนนรวม</div>
+                        </div>
+                        <div class="bg-green-50 p-2 rounded-lg">
+                            <div class="text-lg font-bold text-green-600" id="correctCount">0</div>
+                            <div class="text-xs text-gray-600">ถูกต้อง</div>
+                        </div>
+                        <div class="bg-yellow-50 p-2 rounded-lg">
+                            <div class="text-lg font-bold text-yellow-600" id="avgTime">0</div>
+                            <div class="text-xs text-gray-600">เวลาเฉลี่ย</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="nextMissionCard" class="bg-gradient-to-r from-blue-100 to-purple-100 p-4 rounded-xl border-2 border-blue-300 mb-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div id="nextMissionIcon" class="text-3xl mr-3">🛡️</div>
+                            <div>
+                                <h3 id="nextMissionTitle" class="font-semibold text-gray-800">ภูมิคุ้มกันรับมา</h3>
+                                <p id="nextMissionDesc" class="text-sm text-gray-600">ไวรัสโจมตี! ใช้ซีรัมด่วน</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-gray-500">เคสถัดไป</div>
+                            <div class="text-lg">▶️</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="startCurrentMission()" class="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-blue-600 transition-all">
+                    🏥 เข้าสู่ห้องผู้ป่วย
+                </button>
+            </div>
+
+            <!-- Mission Game Screen -->
+            <div id="missionGame" class="hidden">
+                <div class="bg-white rounded-xl p-4 mb-4 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h2 id="missionTitle" class="text-lg font-bold text-gray-800"></h2>
+                            <p id="missionDescription" class="text-sm text-gray-600"></p>
+                        </div>
+                        <div class="text-center">
+                            <div id="timer" class="text-2xl font-bold text-red-500 mb-1">30</div>
+                            <div class="text-xs text-gray-500">วินาที</div>
+                            <div class="w-16 bg-gray-200 rounded-full h-2 mt-1">
+                                <div id="timerBar" class="bg-red-500 h-2 rounded-full transition-all duration-1000" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Area -->
+                <div id="gameArea" class="bg-gradient-to-b from-blue-50 to-blue-100 rounded-xl p-4 mb-4 min-h-64">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+
+                <!-- Card Selection Area -->
+                <div id="cardArea" class="mb-4">
+                    <h3 class="font-semibold text-gray-700 mb-3">🃏 เลือกการ์ดที่เหมาะสม</h3>
+                    <div id="cardContainer" class="grid grid-cols-2 gap-3">
+                        <!-- Cards will be dynamically generated -->
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3">
+                    <button id="backBtn" onclick="backToMissions()" class="flex-1 bg-gray-500 text-white py-3 rounded-lg font-semibold">
+                        ← กลับ
+                    </button>
+                    <button id="nextBtn" onclick="nextMission()" class="flex-1 bg-blue-500 text-white py-3 rounded-lg font-semibold hidden">
+                        ถัดไป →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div id="resultsScreen" class="hidden text-center">
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <div id="resultIcon" class="text-6xl mb-4"></div>
+                    <h2 id="resultTitle" class="text-2xl font-bold mb-2"></h2>
+                    <p id="resultMessage" class="text-gray-600 mb-4"></p>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="bg-blue-50 p-3 rounded-lg">
+                            <div class="text-lg font-bold text-blue-600" id="missionScore">0</div>
+                            <div class="text-xs text-gray-600">คะแนนที่ได้</div>
+                        </div>
+                        <div class="bg-yellow-50 p-3 rounded-lg">
+                            <div class="text-lg font-bold text-yellow-600" id="timeUsed">0</div>
+                            <div class="text-xs text-gray-600">เวลาที่ใช้</div>
+                        </div>
+                    </div>
+                    
+                    <div id="educationalContent" class="bg-blue-50 p-4 rounded-lg mb-4 text-left">
+                        <!-- Educational content will be inserted here -->
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button id="continueBtn" onclick="continueToNext()" class="flex-1 bg-green-500 text-white px-4 py-3 rounded-lg font-semibold">
+                            ถัดไป →
+                        </button>
+                        <button onclick="backToProgress()" class="flex-1 bg-gray-500 text-white px-4 py-3 rounded-lg font-semibold">
+                            ดูความคืบหน้า
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Final Results Screen -->
+            <div id="finalResults" class="hidden text-center">
+                <div class="bg-gradient-to-b from-yellow-50 to-orange-50 rounded-xl p-6 shadow-lg">
+                    <div class="text-6xl mb-4">🏆</div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">ยินดีด้วย! คุณผ่านการฝึกอบรมแล้ว</h2>
+                    
+                    <div class="bg-white p-4 rounded-lg mb-4">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-blue-600" id="finalScore">0</div>
+                                <div class="text-sm text-gray-600">คะแนนรวม</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-green-600" id="finalCorrect">0</div>
+                                <div class="text-sm text-gray-600">ตอบถูก/9</div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mb-4">
+                            <div class="text-2xl font-bold text-yellow-600" id="finalGrade">A</div>
+                            <div class="text-sm text-gray-600">เกรดที่ได้</div>
+                        </div>
+                        
+                        <div id="finalMessage" class="bg-blue-50 p-3 rounded-lg text-sm text-blue-800">
+                            <!-- Final message will be inserted here -->
+                        </div>
+                    </div>
+                    
+                    <button onclick="restartGame()" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-blue-600 hover:to-purple-700 transition-all">
+                        🔄 เล่นใหม่
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Health Status -->
+        <div id="healthStatus" class="fixed bottom-4 right-4 bg-white rounded-full p-3 shadow-lg hidden">
+            <div class="text-2xl pulse-animation" id="healthEmoji">💪</div>
+        </div>
+    </div>
+
+    <script>
+        let currentMission = 1;
+        let health = 100;
+        let totalScore = 0;
+        let correctAnswers = 0;
+        let selectedCard = null;
+        let missionStartTime = 0;
+        let timerInterval = null;
+        let timeRemaining = 30;
+        let missionTimes = [];
+        let gameStarted = false;
+
+        const missionData = [
+            {
+                icon: "🛡️",
+                title: "ภูมิคุ้มกันรับมา",
+                shortDesc: "ไวรัสโจมตี! ใช้ซีรัมด่วน"
+            },
+            {
+                icon: "🍼",
+                title: "ภูมิคุ้มกันจากน้ำนมแม่",
+                shortDesc: "ปกป้องทารกแรกเกิด"
+            },
+            {
+                icon: "🐍",
+                title: "การฉีดซีรัม",
+                shortDesc: "รักษาเหตุฉุกเฉิน"
+            },
+            {
+                icon: "🧬",
+                title: "ภูมิคุ้มกันก่อเอง",
+                shortDesc: "สร้างแอนติบอดีด้วยตัวเอง"
+            },
+            {
+                icon: "💉",
+                title: "การให้วัคซีน",
+                shortDesc: "เลือกวัคซีนที่เหมาะสม"
+            },
+            {
+                icon: "🤧",
+                title: "โรคภูมิแพ้",
+                shortDesc: "จัดการอาการแพ้"
+            },
+            {
+                icon: "⚡",
+                title: "โรคลูปัส (SLE)",
+                shortDesc: "ร่างกายโจมตีตัวเอง"
+            },
+            {
+                icon: "🦠",
+                title: "HIV การติดเชื้อ",
+                shortDesc: "ชะลอการทำลาย CD4"
+            },
+            {
+                icon: "🎯",
+                title: "ช่องทางติดเชื้อ HIV",
+                shortDesc: "แยกเสี่ยง vs ปลอดภัย"
+            }
+        ];
+
+        const missions = {
+            1: {
+                title: "🛡️ ภูมิคุ้มกันรับมา",
+                description: "ไวรัสโจมตีทันที! ต้องการภูมิคุ้มกันสำเร็จรูปเข้าสู่ร่างกายด่วน",
+                scenario: "🦠 ไวรัสกำลังโจมตีร่างกาย ต้องการความช่วยเหลือทันที!",
+                cards: [
+                    { id: 1, name: "ซีรัมแอนติบอดี", icon: "💉", correct: true, description: "แอนติบอดีสำเร็จรูป" },
+                    { id: 2, name: "วัคซีน", icon: "🦠", correct: false, description: "ใช้เวลานานเกินไป" },
+                    { id: 3, name: "วิตามิน", icon: "🟡", correct: false, description: "ไม่ต่อสู้ไวรัสได้" },
+                    { id: 4, name: "ยาแก้ปวด", icon: "💊", correct: false, description: "ไม่ช่วยต้านไวรัส" }
+                ],
+                education: "ภูมิคุ้มกันรับมาให้แอนติบอดีสำเร็จรูปที่ทำงานได้ทันที เหมาะกับสถานการณ์ฉุกเฉิน"
+            },
+            2: {
+                title: "🍼 ภูมิคุ้มกันจากน้ำนมแม่",
+                description: "ทารกแรกเกิดต้องการภูมิคุ้มกันจากแม่ เลือกการ์ดที่เหมาะสม",
+                scenario: "👶 ทารกแรกเกิดกำลังเจอเชื้อโรคครั้งแรก",
+                cards: [
+                    { id: 1, name: "น้ำนมแม่", icon: "🍼", correct: true, description: "ให้แอนติบอดีจากแม่" },
+                    { id: 2, name: "น้ำเปล่า", icon: "💧", correct: false, description: "ไม่มีภูมิคุ้มกัน" },
+                    { id: 3, name: "นมผง", icon: "🥛", correct: false, description: "ไม่มีแอนติบอดีจากแม่" },
+                    { id: 4, name: "ยาปฏิชีวนะ", icon: "💊", correct: false, description: "ไม่เหมาะกับทารก" }
+                ],
+                education: "น้ำนมแม่มีแอนติบอดี IgA ที่ช่วยปกป้องทารกจากเชื้อโรค โดยเฉพาะในระบบทางเดินอาหารและทางเดินหายใจ"
+            },
+            3: {
+                title: "🐍 การฉีดซีรัม",
+                description: "ผู้ป่วยถูกงูพิษกัด ต้องการการรักษาเร่งด่วน",
+                scenario: "🚨 ผู้ป่วยถูกงูพิษกัด มีอาการเป็นพิษ",
+                cards: [
+                    { id: 1, name: "ซีรัมต้านพิษงู", icon: "💉", correct: true, description: "แอนติบอดีต้านพิษงู" },
+                    { id: 2, name: "ยาแก้ปวด", icon: "💊", correct: false, description: "แก้ปวดแต่ไม่ต้านพิษ" },
+                    { id: 3, name: "น้ำเกิบ", icon: "💧", correct: false, description: "ไม่ช่วยต้านพิษ" },
+                    { id: 4, name: "วัคซีน", icon: "🦠", correct: false, description: "ใช้เวลานานเกินไป" }
+                ],
+                education: "ซีรัมต้านพิษมีแอนติบอดีสำเร็จรูปที่ทำงานได้ทันที ต่างจากวัคซีนที่ต้องรอให้ร่างกายสร้างแอนติบอดีเอง"
+            },
+            4: {
+                title: "🧬 ภูมิคุ้มกันก่อเอง",
+                description: "เจอเชื้อโรคครั้งแรก ให้ร่างกายสร้างแอนติบอดีเอง",
+                scenario: "🦠 เชื้อโรคใหม่เข้าสู่ร่างกาย ต้องสร้างภูมิคุ้มกันระยะยาว",
+                cards: [
+                    { id: 1, name: "วัคซีน", icon: "💉", correct: true, description: "กระตุ้นสร้างแอนติบอดี" },
+                    { id: 2, name: "ซีรัม", icon: "🧪", correct: false, description: "ภูมิคุ้มกันชั่วคราว" },
+                    { id: 3, name: "ยาปฏิชีวนะ", icon: "💊", correct: false, description: "ฆ่าเชื้อแต่ไม่สร้างภูมิ" },
+                    { id: 4, name: "วิตามิน", icon: "🟡", correct: false, description: "เสริมภูมิแต่ไม่จำเพาะ" }
+                ],
+                education: "ภูมิคุ้มกันก่อเองทำให้ร่างกายจดจำเชื้อโรคและสร้างแอนติบอดีเอง ให้ภูมิคุ้มกันระยะยาว"
+            },
+            5: {
+                title: "💉 การให้วัคซีน",
+                description: "เด็กอายุ 1 ปีต้องได้รับวัคซีนป้องกันโรคหัด เลือกวัคซีนที่ถูกต้อง",
+                scenario: "👦 เด็กอายุ 1 ปี ต้องการวัคซีนป้องกันโรคหัด",
+                cards: [
+                    { id: 1, name: "วัคซีน MMR", icon: "💉", correct: true, description: "ป้องกันหัด คางทูม หัดเยอรมัน" },
+                    { id: 2, name: "วัคซีนไข้หวัดใหญ่", icon: "🦠", correct: false, description: "ป้องกันไข้หวัดใหญ่เท่านั้น" },
+                    { id: 3, name: "วิตามิน", icon: "🟡", correct: false, description: "เสริมภูมิแต่ไม่ป้องกันโรค" },
+                    { id: 4, name: "ยาลดไข้", icon: "🌡️", correct: false, description: "รักษาอาการไม่ป้องกัน" }
+                ],
+                education: "วัคซีน MMR ป้องกันโรคหัด คางทูม และหัดเยอรมัน โดยกระตุ้นให้ร่างกายสร้างแอนติบอดีเพื่อจดจำเชื้อโรค"
+            },
+            6: {
+                title: "🤧 โรคภูมิแพ้",
+                description: "ผู้ป่วยมีอาการคัน จาม น้ำมูกไฟ หลังสัมผัสฝุ่น",
+                scenario: "😷 ผู้ป่วยแพ้ฝุ่น มีอาการคัน จาม น้ำมูกไฟ",
+                cards: [
+                    { id: 1, name: "แอนติฮิสตามีน", icon: "💊", correct: true, description: "ลดอาการแพ้" },
+                    { id: 2, name: "ยาปฏิชีวนะ", icon: "🔴", correct: false, description: "ใช้กับเชื้อแบคทีเรีย" },
+                    { id: 3, name: "วิตามินซี", icon: "🍊", correct: false, description: "เสริมภูมิแต่ไม่รักษาแพ้" },
+                    { id: 4, name: "น้ำเกิบ", icon: "🧂", correct: false, description: "ไม่ช่วยอาการแพ้" }
+                ],
+                education: "โรคภูมิแพ้เกิดจากระบบภูมิคุ้มกันตอบสนองมากเกินไปต่อสารที่ไม่เป็นอันตราย แอนติฮิสตามีนช่วยลดอาการได้"
+            },
+            7: {
+                title: "⚡ โรคลูปัส (SLE)",
+                description: "ระบบภูมิคุ้มกันผิดพลาด โจมตีเนื้อเยื่อของตัวเอง",
+                scenario: "💥 แอนติบอดีกำลังโจมตีเซลล์ของตัวเอง!",
+                cards: [
+                    { id: 1, name: "ยายับยั้งภูมิคุ้มกัน", icon: "🛡️", correct: true, description: "ลดการโจมตีตัวเอง" },
+                    { id: 2, name: "วัคซีน", icon: "💉", correct: false, description: "กระตุ้นภูมิคุ้มกันมากขึ้น" },
+                    { id: 3, name: "วิตามิน", icon: "🟡", correct: false, description: "ไม่ช่วยควบคุมโรค" },
+                    { id: 4, name: "ยาปฏิชีวนะ", icon: "💊", correct: false, description: "ไม่เกี่ยวกับเชื้อโรค" }
+                ],
+                education: "โรคลูปัสเป็นโรคภูมิคุ้มกันผิดปกติ ที่แอนติบอดีโจมตีเนื้อเยื่อของตัวเอง ต้องใช้ยายับยั้งภูมิคุ้มกัน"
+            },
+            8: {
+                title: "🦠 HIV การติดเชื้อ",
+                description: "ไวรัส HIV กำลังทำลายเซลล์ CD4 ต้องชะลอการเพิ่มจำนวน",
+                scenario: "📉 เซลล์ CD4 ลดลง ไวรัส HIV เพิ่มขึ้น",
+                cards: [
+                    { id: 1, name: "ยาต้านไวรัส ARV", icon: "💊", correct: true, description: "ชะลอการเพิ่มของไวรัส" },
+                    { id: 2, name: "ยาปฏิชีวนะ", icon: "🔴", correct: false, description: "ไม่ฆ่าไวรัส" },
+                    { id: 3, name: "วัคซีน", icon: "💉", correct: false, description: "ยังไม่มีวัคซีน HIV" },
+                    { id: 4, name: "วิตามิน", icon: "🟡", correct: false, description: "ไม่ต้านไวรัสได้" }
+                ],
+                education: "HIV ทำลายเซลล์ CD4 ที่สำคัญต่อระบบภูมิคุ้มกัน ยา ARV ช่วยชะลอการเพิ่มของไวรัสและรักษาเซลล์ CD4"
+            },
+            9: {
+                title: "🎯 ช่องทางติดเชื้อ HIV",
+                description: "แยกกิจกรรมที่เสี่ยงและปลอดภัยต่อการติดเชื้อ HIV",
+                scenario: "🤔 กิจกรรมไหนเสี่ยงติด HIV บ้าง?",
+                type: "drag_drop",
+                activities: [
+                    { name: "ใช้เข็มร่วมกัน", icon: "💉", risk: true },
+                    { name: "จับมือ", icon: "🤝", risk: false },
+                    { name: "รับเลือด", icon: "🩸", risk: true },
+                    { name: "กอด", icon: "🤗", risk: false },
+                    { name: "มีเพศสัมพันธ์ไม่ปลอดภัย", icon: "❤️", risk: true },
+                    { name: "กินข้าวด้วยกัน", icon: "🍚", risk: false }
+                ],
+                education: "HIV ติดต่อผ่านเลือด น้ำเหลือง และการมีเพศสัมพันธ์ ไม่ติดผ่านการสัมผัสทั่วไปเช่น จับมือ กอด หรือกินข้าวด้วยกัน"
+            }
+        };
+
+        function startGame() {
+            gameStarted = true;
+            document.getElementById('storyIntro').classList.add('hidden');
+            document.getElementById('missionProgress').classList.remove('hidden');
+            document.getElementById('sessionStats').classList.remove('hidden');
+            updateProgressScreen();
+            updateSessionStats();
+        }
+
+        function updateProgressScreen() {
+            const progress = ((currentMission - 1) / 9) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('currentMissionNum').textContent = currentMission;
+            document.getElementById('totalScore').textContent = totalScore;
+            document.getElementById('correctCount').textContent = correctAnswers;
+            
+            const avgTime = missionTimes.length > 0 ? 
+                Math.round(missionTimes.reduce((a, b) => a + b, 0) / missionTimes.length) : 0;
+            document.getElementById('avgTime').textContent = avgTime + 's';
+            
+            if (currentMission <= 9) {
+                const missionInfo = missionData[currentMission - 1];
+                document.getElementById('nextMissionIcon').textContent = missionInfo.icon;
+                document.getElementById('nextMissionTitle').textContent = missionInfo.title;
+                document.getElementById('nextMissionDesc').textContent = missionInfo.shortDesc;
+            }
+            
+            updateSessionStats();
+        }
+
+        function updateSessionStats() {
+            document.getElementById('sessionScore').textContent = totalScore;
+            
+            const totalTime = missionTimes.reduce((a, b) => a + b, 0);
+            document.getElementById('sessionTime').textContent = totalTime + 's';
+            
+            document.getElementById('sessionMission').textContent = Math.max(1, currentMission - (missionTimes.length > 0 ? 0 : 1));
+        }
+
+        function startCurrentMission() {
+            startMission(currentMission);
+        }
+
+        function startMission(missionId) {
+            const mission = missions[missionId];
+            
+            document.getElementById('missionProgress').classList.add('hidden');
+            document.getElementById('missionGame').classList.remove('hidden');
+            
+            document.getElementById('missionTitle').textContent = mission.title;
+            document.getElementById('missionDescription').textContent = mission.description;
+            
+            // Start timer
+            timeRemaining = 30;
+            missionStartTime = Date.now();
+            startTimer();
+            
+            // Setup game area
+            const gameArea = document.getElementById('gameArea');
+            
+            if (mission.type === 'drag_drop') {
+                // Special drag-drop game for HIV transmission
+                gameArea.innerHTML = `
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2 pulse-animation">🎯</div>
+                        <p class="text-lg font-semibold text-gray-700">${mission.scenario.substring(2)}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-red-100 border-2 border-red-300 rounded-lg p-3 min-h-32" id="riskZone">
+                            <h4 class="font-bold text-red-700 text-center mb-2">🚨 เสี่ยง</h4>
+                            <div class="min-h-20" id="riskItems"></div>
+                        </div>
+                        <div class="bg-green-100 border-2 border-green-300 rounded-lg p-3 min-h-32" id="safeZone">
+                            <h4 class="font-bold text-green-700 text-center mb-2">✅ ปลอดภัย</h4>
+                            <div class="min-h-20" id="safeItems"></div>
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-lg">
+                        <h4 class="font-semibold text-blue-800 mb-2">📋 กิจกรรม</h4>
+                        <div class="grid grid-cols-2 gap-2" id="activities">
+                            ${mission.activities.map(activity => `
+                                <div class="bg-white p-2 rounded border cursor-move text-center activity-item" 
+                                     data-risk="${activity.risk}" draggable="true">
+                                    <div class="text-2xl">${activity.icon}</div>
+                                    <div class="text-xs">${activity.name}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                setupDragDrop();
+                document.getElementById('cardArea').classList.add('hidden');
+            } else {
+                // Regular card game
+                gameArea.innerHTML = `
+                    <div class="text-center">
+                        <div class="text-4xl mb-4 pulse-animation">${mission.scenario.split(' ')[0]}</div>
+                        <p class="text-lg font-semibold text-gray-700">${mission.scenario.substring(2)}</p>
+                        <div class="mt-4 p-3 bg-yellow-100 rounded-lg">
+                            <p class="text-sm text-yellow-800">⚠️ เลือกการ์ดที่เหมาะสมเพื่อช่วยผู้ป่วย</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Setup cards
+                const cardContainer = document.getElementById('cardContainer');
+                cardContainer.innerHTML = '';
+                document.getElementById('cardArea').classList.remove('hidden');
+                
+                mission.cards.forEach(card => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'card-hover bg-white p-4 rounded-lg border-2 border-gray-200 cursor-pointer text-center';
+                    cardElement.onclick = () => selectCard(card);
+                    cardElement.innerHTML = `
+                        <div class="text-3xl mb-2">${card.icon}</div>
+                        <h4 class="font-semibold text-sm">${card.name}</h4>
+                        <p class="text-xs text-gray-500 mt-1">${card.description}</p>
+                    `;
+                    cardContainer.appendChild(cardElement);
+                });
+            }
+            
+            selectedCard = null;
+        }
+
+        function setupDragDrop() {
+            const activities = document.querySelectorAll('.activity-item');
+            const riskZone = document.getElementById('riskItems');
+            const safeZone = document.getElementById('safeItems');
+            
+            activities.forEach(activity => {
+                activity.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', e.target.outerHTML);
+                    e.dataTransfer.setData('risk', e.target.dataset.risk);
+                });
+            });
+            
+            [riskZone, safeZone].forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.classList.add('bg-opacity-50');
+                });
+                
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('bg-opacity-50');
+                });
+                
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('bg-opacity-50');
+                    
+                    const itemHTML = e.dataTransfer.getData('text/plain');
+                    const isRisk = e.dataTransfer.getData('risk') === 'true';
+                    const isRiskZone = zone.id === 'riskItems';
+                    
+                    // Create new element
+                    const newItem = document.createElement('div');
+                    newItem.innerHTML = itemHTML;
+                    const item = newItem.firstChild;
+                    item.classList.remove('cursor-move');
+                    item.classList.add('mb-1');
+                    
+                    // Add visual feedback
+                    if (isRisk === isRiskZone) {
+                        item.classList.add('border-green-500', 'bg-green-50');
+                    } else {
+                        item.classList.add('border-red-500', 'bg-red-50');
+                    }
+                    
+                    zone.appendChild(item);
+                    
+                    // Remove from activities
+                    const originalItem = document.querySelector(`[data-risk="${isRisk}"]`);
+                    if (originalItem && originalItem.parentNode.id === 'activities') {
+                        originalItem.remove();
+                    }
+                    
+                    // Check if all items are placed
+                    if (document.querySelectorAll('#activities .activity-item').length === 0) {
+                        setTimeout(() => checkDragDropResult(), 500);
+                    }
+                });
+            });
+        }
+
+        function checkDragDropResult() {
+            clearInterval(timerInterval);
+            const timeUsed = 30 - timeRemaining;
+            
+            const mission = missions[currentMission];
+            let correct = 0;
+            let total = mission.activities.length;
+            
+            // Check risk zone
+            const riskItems = document.querySelectorAll('#riskItems .activity-item');
+            riskItems.forEach(item => {
+                if (item.dataset.risk === 'true') correct++;
+            });
+            
+            // Check safe zone
+            const safeItems = document.querySelectorAll('#safeItems .activity-item');
+            safeItems.forEach(item => {
+                if (item.dataset.risk === 'false') correct++;
+            });
+            
+            const isCorrect = correct === total;
+            showResult(isCorrect, false, timeUsed);
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                document.getElementById('timer').textContent = timeRemaining;
+                
+                const percentage = (timeRemaining / 30) * 100;
+                document.getElementById('timerBar').style.width = percentage + '%';
+                
+                // Change color based on time remaining
+                const timerBar = document.getElementById('timerBar');
+                const timer = document.getElementById('timer');
+                if (timeRemaining <= 10) {
+                    timerBar.className = 'bg-red-500 h-2 rounded-full transition-all duration-1000';
+                    timer.className = 'text-2xl font-bold text-red-500 mb-1';
+                } else if (timeRemaining <= 20) {
+                    timerBar.className = 'bg-yellow-500 h-2 rounded-full transition-all duration-1000';
+                    timer.className = 'text-2xl font-bold text-yellow-500 mb-1';
+                } else {
+                    timerBar.className = 'bg-green-500 h-2 rounded-full transition-all duration-1000';
+                    timer.className = 'text-2xl font-bold text-green-500 mb-1';
+                }
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    showResult(false, true); // timeout
+                }
+            }, 1000);
+        }
+
+        function calculateScore(isCorrect, timeUsed) {
+            if (!isCorrect) return 0;
+            
+            const baseScore = 1000;
+            const timeBonus = Math.max(0, (30 - timeUsed) * 20); // 20 points per second saved
+            return baseScore + timeBonus;
+        }
+
+        function selectCard(card) {
+            selectedCard = card;
+            clearInterval(timerInterval);
+            
+            const timeUsed = 30 - timeRemaining;
+            
+            // Visual feedback
+            const cards = document.querySelectorAll('#cardContainer > div');
+            cards.forEach(c => c.classList.remove('border-blue-500', 'bg-blue-50'));
+            
+            event.target.closest('div').classList.add('border-blue-500', 'bg-blue-50');
+            
+            // Show result immediately
+            setTimeout(() => {
+                showResult(card.correct, false, timeUsed);
+            }, 500);
+        }
+
+        function showResult(isCorrect, isTimeout = false, timeUsed = 30) {
+            const mission = missions[currentMission];
+            
+            document.getElementById('missionGame').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+            
+            const missionScore = calculateScore(isCorrect, timeUsed);
+            totalScore += missionScore;
+            missionTimes.push(timeUsed);
+            
+            // Update session stats immediately
+            updateSessionStats();
+            
+            if (isCorrect) {
+                correctAnswers++;
+                document.getElementById('resultIcon').textContent = '🎉';
+                document.getElementById('resultTitle').textContent = 'ยินดีด้วย!';
+                document.getElementById('resultMessage').textContent = 'คุณเลือกการรักษาที่ถูกต้อง';
+                updateHealthStatus('good');
+            } else if (isTimeout) {
+                document.getElementById('resultIcon').textContent = '⏰';
+                document.getElementById('resultTitle').textContent = 'หมดเวลา!';
+                document.getElementById('resultMessage').textContent = 'เวลาหมดแล้ว ต้องตัดสินใจเร็วขึ้น';
+                health -= 20;
+                updateHealthStatus('bad');
+            } else {
+                document.getElementById('resultIcon').textContent = '😔';
+                document.getElementById('resultTitle').textContent = 'ลองใหม่นะ';
+                document.getElementById('resultMessage').textContent = 'การเลือกนี้อาจไม่เหมาะสม';
+                health -= 20;
+                updateHealthStatus('bad');
+            }
+            
+            document.getElementById('missionScore').textContent = missionScore;
+            document.getElementById('timeUsed').textContent = timeUsed + 's';
+            
+            document.getElementById('educationalContent').innerHTML = `
+                <h4 class="font-semibold text-blue-800 mb-2">💡 ความรู้ที่ได้</h4>
+                <p class="text-sm">${mission.education}</p>
+            `;
+            
+            // Show continue button or final results
+            if (currentMission >= 9) {
+                document.getElementById('continueBtn').textContent = '🏆 ดูผลรวม';
+                document.getElementById('continueBtn').onclick = showFinalResults;
+            } else {
+                document.getElementById('continueBtn').textContent = 'ถัดไป →';
+                document.getElementById('continueBtn').onclick = continueToNext;
+            }
+        }
+
+        function continueToNext() {
+            currentMission++;
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('missionProgress').classList.remove('hidden');
+            updateProgressScreen();
+        }
+
+        function backToProgress() {
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('missionProgress').classList.remove('hidden');
+            updateProgressScreen();
+        }
+
+        function showFinalResults() {
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('finalResults').classList.remove('hidden');
+            
+            document.getElementById('finalScore').textContent = totalScore;
+            document.getElementById('finalCorrect').textContent = correctAnswers;
+            
+            // Calculate grade
+            const percentage = (correctAnswers / 9) * 100;
+            let grade, message;
+            
+            if (percentage >= 90) {
+                grade = 'A+';
+                message = '🌟 ยอดเยี่ยม! คุณเป็นหมอผู้เชี่ยวชาญด้านภูมิคุ้มกันแล้ว!';
+            } else if (percentage >= 80) {
+                grade = 'A';
+                message = '👏 เก่งมาก! คุณมีความรู้ด้านภูมิคุ้มกันในระดับดี';
+            } else if (percentage >= 70) {
+                grade = 'B+';
+                message = '👍 ดีแล้ว! ลองทบทวนความรู้เพิ่มเติมนะ';
+            } else if (percentage >= 60) {
+                grade = 'B';
+                message = '📚 ผ่านแล้ว แต่ควรศึกษาเพิ่มเติม';
+            } else {
+                grade = 'C';
+                message = '💪 ลองเล่นใหม่เพื่อเพิ่มความรู้!';
+            }
+            
+            document.getElementById('finalGrade').textContent = grade;
+            document.getElementById('finalMessage').textContent = message;
+        }
+
+        function restartGame() {
+            currentMission = 1;
+            totalScore = 0;
+            correctAnswers = 0;
+            missionTimes = [];
+            health = 100;
+            
+            document.getElementById('finalResults').classList.add('hidden');
+            document.getElementById('storyIntro').classList.remove('hidden');
+            document.getElementById('sessionStats').classList.add('hidden');
+            
+            // Reset session stats display
+            document.getElementById('sessionScore').textContent = '0';
+            document.getElementById('sessionTime').textContent = '0s';
+            document.getElementById('sessionMission').textContent = '1';
+        }
+
+        function updateHealthStatus(status) {
+            const healthBar = document.getElementById('healthBar');
+            const healthEmoji = document.getElementById('healthEmoji');
+            const healthStatus = document.getElementById('healthStatus');
+            
+            healthBar.style.width = health + '%';
+            
+            if (status === 'good') {
+                healthEmoji.textContent = '💪';
+                healthStatus.classList.remove('hidden');
+                setTimeout(() => healthStatus.classList.add('hidden'), 2000);
+            } else if (status === 'bad') {
+                healthEmoji.textContent = '😷';
+                healthStatus.classList.remove('hidden');
+                setTimeout(() => healthStatus.classList.add('hidden'), 2000);
+            }
+            
+            if (health <= 0) {
+                health = 0;
+                healthEmoji.textContent = '💀';
+            }
+        }
+
+        // Initialize game
+        updateHealthStatus('normal');
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96a356a89052d334',t:'MTc1NDM2NTkxMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
