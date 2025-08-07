@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ห้องทดลองเสมือนจริง: การทดสอบสารอาหารในพืช</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+        }
+        .test-tube {
+            width: 60px;
+            height: 200px;
+            border: 3px solid #333;
+            border-top: none;
+            border-radius: 0 0 30px 30px;
+            position: relative;
+            background-color: #e0e0e0;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .test-tube:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 75%;
+            background-color: #c7ecee;
+            border-radius: 0 0 27px 27px;
+            transition: background-color 0.5s ease;
+        }
+        .test-tube-label {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid #ccc;
+        }
+        .tool {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 3px solid transparent;
+        }
+        .tool.selected {
+            border-color: #3498db;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+        }
+        .paper-result {
+            transition: opacity 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="container mx-auto max-w-5xl bg-white rounded-2xl shadow-xl p-6 md:p-8">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">ห้องทดลองเสมือนจริง</h1>
+            <p class="text-lg text-gray-600 mt-2">กิจกรรมการทดสอบสารอินทรีย์ในพืช</p>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 rounded-lg mb-8">
+            <h2 class="font-bold">คำชี้แจง:</h2>
+            <p>1. เลือกเครื่องมือทดสอบ (สารละลายไอโอดีน, สารละลายไบยูเร็ต หรือ กระดาษ) ด้านล่าง</p>
+            <p>2. คลิกที่หลอดทดลองของสารตัวอย่างที่ต้องการทดสอบ</p>
+            <p>3. สังเกตการเปลี่ยนแปลงและผลจะถูกบันทึกลงในตารางโดยอัตโนมัติ</p>
+        </div>
+
+        <!-- Lab Area -->
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Samples -->
+            <div class="w-full lg:w-2/3 bg-gray-50 p-6 rounded-lg shadow-inner">
+                <h3 class="text-xl font-bold text-center mb-6 text-gray-700">สารตัวอย่าง</h3>
+                <div id="samples-container" class="flex justify-around items-end h-64">
+                    <!-- Test Tube 1 -->
+                    <div class="text-center">
+                        <div id="sample-1" class="test-tube mx-auto" onclick="performTest(1)">
+                            <div class="test-tube-label">ตัวอย่างที่ 1</div>
+                            <div id="liquid-1" class="liquid" style="background-color: #f7d794;"></div>
+                        </div>
+                        <p class="mt-2 font-semibold">สารตัวอย่างที่ 1</p>
+                    </div>
+                    <!-- Test Tube 2 -->
+                    <div class="text-center">
+                        <div id="sample-2" class="test-tube mx-auto" onclick="performTest(2)">
+                            <div class="test-tube-label">ตัวอย่างที่ 2</div>
+                            <div id="liquid-2" class="liquid" style="background-color: #f7d794;"></div>
+                        </div>
+                        <p class="mt-2 font-semibold">สารตัวอย่างที่ 2</p>
+                    </div>
+                    <!-- Test Tube 3 -->
+                    <div class="text-center">
+                        <div id="sample-3" class="test-tube mx-auto" onclick="performTest(3)">
+                            <div class="test-tube-label">ตัวอย่างที่ 3</div>
+                            <div id="liquid-3" class="liquid" style="background-color: #f7d794;"></div>
+                        </div>
+                        <p class="mt-2 font-semibold">สารตัวอย่างที่ 3</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tools -->
+            <div class="w-full lg:w-1/3 bg-gray-50 p-6 rounded-lg shadow-inner flex flex-col justify-center">
+                <h3 class="text-xl font-bold text-center mb-6 text-gray-700">เครื่องมือทดสอบ</h3>
+                <div class="space-y-4">
+                    <div id="tool-iodine" class="tool p-3 bg-white rounded-lg shadow flex items-center gap-4" onclick="selectTool('iodine')">
+                        <img src="https://placehold.co/50x50/f1c40f/ffffff?text=I" alt="Iodine" class="rounded">
+                        <div>
+                            <p class="font-bold">สารละลายไอโอดีน</p>
+                            <p class="text-sm text-gray-500">ทดสอบแป้ง</p>
+                        </div>
+                    </div>
+                    <div id="tool-biuret" class="tool p-3 bg-white rounded-lg shadow flex items-center gap-4" onclick="selectTool('biuret')">
+                        <img src="https://placehold.co/50x50/3498db/ffffff?text=B" alt="Biuret" class="rounded">
+                        <div>
+                            <p class="font-bold">สารละลายไบยูเร็ต</p>
+                            <p class="text-sm text-gray-500">ทดสอบโปรตีน</p>
+                        </div>
+                    </div>
+                    <div id="tool-paper" class="tool p-3 bg-white rounded-lg shadow flex items-center gap-4" onclick="selectTool('paper')">
+                         <svg class="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <div>
+                            <p class="font-bold">ถูกับกระดาษ</p>
+                            <p class="text-sm text-gray-500">ทดสอบไขมัน</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">ตารางบันทึกผลการทดลอง</h2>
+            <div class="overflow-x-auto bg-white rounded-lg shadow">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-200">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">สาร</th>
+                            <th scope="col" class="px-6 py-3">การทดสอบด้วยไอโอดีน</th>
+                            <th scope="col" class="px-6 py-3">การทดสอบด้วยไบยูเร็ต</th>
+                            <th scope="col" class="px-6 py-3">การถูกับกระดาษ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bg-white border-b">
+                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">สารตัวอย่างที่ 1</th>
+                            <td id="result-1-iodine" class="px-6 py-4">---</td>
+                            <td id="result-1-biuret" class="px-6 py-4">---</td>
+                            <td id="result-1-paper" class="px-6 py-4">---</td>
+                        </tr>
+                        <tr class="bg-gray-50 border-b">
+                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">สารตัวอย่างที่ 2</th>
+                            <td id="result-2-iodine" class="px-6 py-4">---</td>
+                            <td id="result-2-biuret" class="px-6 py-4">---</td>
+                            <td id="result-2-paper" class="px-6 py-4">---</td>
+                        </tr>
+                        <tr class="bg-white border-b">
+                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">สารตัวอย่างที่ 3</th>
+                            <td id="result-3-iodine" class="px-6 py-4">---</td>
+                            <td id="result-3-biuret" class="px-6 py-4">---</td>
+                            <td id="result-3-paper" class="px-6 py-4">---</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Message & Reset -->
+        <div id="message-box" class="mt-6 text-center text-lg font-semibold text-red-600 h-8"></div>
+        <div class="text-center mt-4">
+            <button onclick="resetLab()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition-transform transform hover:scale-105">
+                เริ่มต้นการทดลองใหม่
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Configuration ---
+        // Define what each sample contains.
+        const sampleContents = {
+            1: { nutrient: 'starch', originalColor: '#f7d794' },  // Sample 1 contains starch
+            2: { nutrient: 'protein', originalColor: '#f7d794' }, // Sample 2 contains protein
+            3: { nutrient: 'lipid', originalColor: '#f7d794' }    // Sample 3 contains lipid
+        };
+
+        // Define test results
+        const testResults = {
+            iodine: {
+                positive: { text: 'เปลี่ยนเป็นสีน้ำเงินแกมม่วง', color: '#4834d4' },
+                negative: { text: 'ไม่เปลี่ยนแปลง', color: '#f1c40f' } // Iodine color
+            },
+            biuret: {
+                positive: { text: 'เปลี่ยนเป็นสีม่วง', color: '#8e44ad' },
+                negative: { text: 'ไม่เปลี่ยนแปลง', color: '#3498db' } // Biuret color
+            },
+            paper: {
+                positive: { text: 'กระดาษโปร่งแสง' },
+                negative: { text: 'ไม่เปลี่ยนแปลง' }
+            }
+        };
+
+        let selectedTool = null;
+        const messageBox = document.getElementById('message-box');
+
+        // --- Functions ---
+
+        /**
+         * Selects a testing tool.
+         * @param {string} toolName - The name of the tool ('iodine', 'biuret', 'paper').
+         */
+        function selectTool(toolName) {
+            selectedTool = toolName;
+            // Update UI to show which tool is selected
+            document.querySelectorAll('.tool').forEach(tool => {
+                tool.classList.remove('selected');
+            });
+            document.getElementById(`tool-${toolName}`).classList.add('selected');
+            messageBox.textContent = ''; // Clear any previous messages
+        }
+
+        /**
+         * Performs a test on a given sample.
+         * @param {number} sampleNumber - The number of the sample to test.
+         */
+        function performTest(sampleNumber) {
+            if (!selectedTool) {
+                messageBox.textContent = 'กรุณาเลือกเครื่องมือทดสอบก่อน!';
+                return;
+            }
+
+            const sample = sampleContents[sampleNumber];
+            const liquid = document.getElementById(`liquid-${sampleNumber}`);
+            const resultCell = document.getElementById(`result-${sampleNumber}-${selectedTool}`);
+
+            // Logic for each test
+            switch (selectedTool) {
+                case 'iodine':
+                    if (sample.nutrient === 'starch') {
+                        // Positive result for starch
+                        liquid.style.backgroundColor = testResults.iodine.positive.color;
+                        resultCell.textContent = testResults.iodine.positive.text;
+                        resultCell.className = 'px-6 py-4 font-bold text-green-600';
+                    } else {
+                        // Negative result
+                        liquid.style.backgroundColor = testResults.iodine.negative.color;
+                        resultCell.textContent = testResults.iodine.negative.text;
+                        resultCell.className = 'px-6 py-4 text-gray-500';
+                    }
+                    break;
+
+                case 'biuret':
+                    if (sample.nutrient === 'protein') {
+                        // Positive result for protein
+                        liquid.style.backgroundColor = testResults.biuret.positive.color;
+                        resultCell.textContent = testResults.biuret.positive.text;
+                        resultCell.className = 'px-6 py-4 font-bold text-green-600';
+                    } else {
+                        // Negative result
+                        liquid.style.backgroundColor = testResults.biuret.negative.color;
+                        resultCell.textContent = testResults.biuret.negative.text;
+                        resultCell.className = 'px-6 py-4 text-gray-500';
+                    }
+                    break;
+
+                case 'paper':
+                    const sampleDiv = document.getElementById(`sample-${sampleNumber}`);
+                    // Remove previous paper effect if any
+                    const oldPaper = sampleDiv.querySelector('.paper-result');
+                    if(oldPaper) oldPaper.remove();
+
+                    // Create a visual representation of the paper test
+                    const paperEffect = document.createElement('div');
+                    paperEffect.className = 'paper-result absolute inset-0 rounded-lg';
+                    
+                    if (sample.nutrient === 'lipid') {
+                        // Positive result for lipid
+                        paperEffect.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+                        paperEffect.style.backdropFilter = 'blur(2px)';
+                        resultCell.textContent = testResults.paper.positive.text;
+                        resultCell.className = 'px-6 py-4 font-bold text-green-600';
+                    } else {
+                        // Negative result
+                        paperEffect.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+                        resultCell.textContent = testResults.paper.negative.text;
+                         resultCell.className = 'px-6 py-4 text-gray-500';
+                    }
+                    sampleDiv.appendChild(paperEffect);
+                    // Fade out the effect after a moment
+                    setTimeout(() => paperEffect.style.opacity = '0', 1500);
+                    break;
+            }
+        }
+
+        /**
+         * Resets the lab to its initial state.
+         */
+        function resetLab() {
+            // Reset tool selection
+            selectedTool = null;
+            document.querySelectorAll('.tool').forEach(tool => tool.classList.remove('selected'));
+            
+            // Reset samples
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`liquid-${i}`).style.backgroundColor = sampleContents[i].originalColor;
+                
+                // Remove paper effect
+                const oldPaper = document.getElementById(`sample-${i}`).querySelector('.paper-result');
+                if(oldPaper) oldPaper.remove();
+
+                // Reset table
+                document.getElementById(`result-${i}-iodine`).textContent = '---';
+                document.getElementById(`result-${i}-biuret`).textContent = '---';
+                document.getElementById(`result-${i}-paper`).textContent = '---';
+                document.getElementById(`result-${i}-iodine`).className = 'px-6 py-4';
+                document.getElementById(`result-${i}-biuret`).className = 'px-6 py-4';
+                document.getElementById(`result-${i}-paper`).className = 'px-6 py-4';
+            }
+
+            // Clear message
+            messageBox.textContent = '';
+        }
+
+    </script>
+</body>
+</html>
