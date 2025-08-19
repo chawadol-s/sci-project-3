@@ -2,15 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Cellular Defenders: The Immune System Battle</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Import Prompt Font */
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
 
+        html, body {
+            overscroll-behavior-y: contain; /* Prevents pull-to-refresh on mobile */
+            -webkit-font-smoothing: antialiased;
+        }
+
         body {
-            /* Apply Prompt Font */
             font-family: 'Prompt', sans-serif;
             background-color: #f0f4ff;
             overflow-x: hidden;
@@ -30,7 +34,7 @@
         }
         .pathogen {
             position: absolute;
-            transition: all 0.5s ease;
+            transition: left 0.5s linear; /* Use linear transition for smooth movement */
             cursor: pointer;
         }
         .defender {
@@ -43,12 +47,27 @@
             border-radius: 50%;
             z-index: 5;
         }
-        .game-board {
+        
+        /* Responsive Game Board Container */
+        #game-board-container {
+            width: 100%;
+            max-width: 800px; /* Maximum width of the game board area */
+            margin: 0 auto;
+            aspect-ratio: 800 / 500; /* Maintain aspect ratio */
+            position: relative;
+        }
+
+        #game-board {
+            position: absolute;
+            width: 800px; /* Fixed internal resolution width */
+            height: 500px; /* Fixed internal resolution height */
             background-image: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(220,230,255,0.4) 70%);
             border-radius: 12px;
             overflow: hidden;
-            position: relative;
+            transform-origin: top left;
+            border: 4px solid #a3bffa;
         }
+
         .btn-primary {
             background: linear-gradient(135deg, #4c6fff 0%, #3a56e8 100%);
             transition: all 0.3s ease;
@@ -92,36 +111,8 @@
         .tab:hover:not(.active) {
             background-color: #e0e7ff;
         }
-        .animate-pulse {
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-            100% {
-                transform: translateY(0px);
-            }
-        }
         .tooltip {
-            position: absolute;
+            position: fixed; /* Use fixed positioning for tooltips */
             background-color: rgba(0, 0, 0, 0.8);
             color: white;
             padding: 5px 10px;
@@ -160,14 +151,15 @@
     </style>
 </head>
 <body class="min-h-screen">
-    <audio id="background-music" src="https://vgmsite.com/soundtracks/sick-beats-for-sick-kids-a-charity-album/pftvowim/11.%20Pjush%20-%20Bio-Mechanics.mp3" loop></audio>
-    <div id="game-wrapper" class="container mx-auto px-4 py-8 max-w-6xl">
+    <!-- New, reliable background music source -->
+    <audio id="background-music" src="https://cdn.pixabay.com/audio/2022/11/17/audio_87005e8392.mp3" loop></audio>
+    <div id="game-wrapper" class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Game Header -->
         <header class="text-center mb-6">
             <div class="flex justify-between items-center mb-4">
                  <div class="flex items-center space-x-2">
                     <button id="mute-btn" class="p-2 rounded-full bg-blue-100 hover:bg-blue-200">
-                        <svg id="unmuted-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg id="unmuted-icon" xmlns="http://www.w.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                           </svg>
                         <svg id="muted-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -177,8 +169,8 @@
                     </button>
                  </div>
                 <div>
-                    <h1 id="game-title" class="text-4xl font-bold text-blue-800 mb-2">Cellular Defenders</h1>
-                    <p id="game-subtitle" class="text-xl text-blue-600">The Immune System Battle</p>
+                    <h1 id="game-title" class="text-3xl md:text-4xl font-bold text-blue-800 mb-2">Cellular Defenders</h1>
+                    <p id="game-subtitle" class="text-lg md:text-xl text-blue-600">The Immune System Battle</p>
                 </div>
                 <div class="flex space-x-2">
                     <button id="lang-en" class="lang-btn px-3 py-1 rounded-lg font-semibold text-sm active">EN</button>
@@ -187,10 +179,10 @@
             </div>
         </header>
         <!-- Main Game Container -->
-        <div class="game-container p-6">
+        <div class="game-container p-4 md:p-6">
             <!-- Game Controls -->
-            <div class="flex flex-wrap justify-between items-center mb-6">
-                <div class="flex items-center space-x-4 flex-wrap">
+            <div class="flex flex-wrap justify-center sm:justify-between items-center mb-6 gap-2">
+                <div class="flex items-center space-x-2 md:space-x-4 flex-wrap justify-center gap-2">
                     <div class="bg-white p-3 rounded-lg shadow-md">
                         <div class="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -350,8 +342,10 @@
                 </div>
                 <!-- Game Board -->
                 <div class="lg:w-2/4">
-                    <div id="game-board" class="game-board w-full h-[500px] border-4 border-blue-300 relative">
-                        <!-- Game elements will be added here dynamically -->
+                    <div id="game-board-container">
+                        <div id="game-board">
+                            <!-- Game elements will be added here dynamically -->
+                        </div>
                     </div>
                 </div>
                 <!-- Right Panel - Information -->
@@ -447,7 +441,7 @@
             </div>
             <div class="mb-6">
                 <h3 id="choose-level-title" class="text-xl font-semibold text-blue-700 mb-3">Choose Your Level:</h3>
-                <div class="grid grid-cols-2 gap-4" id="level-grid">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="level-grid">
                     <button class="level-btn bg-blue-100 hover:bg-blue-200 p-4 rounded-lg text-left transition-all" data-level="1">
                         <h4 id="level1-name" class="font-bold text-blue-800">Level 1: Bloodstream</h4>
                         <p id="level1-desc" class="text-sm text-gray-600">Defend against bacteria in the bloodstream.</p>
@@ -1092,12 +1086,10 @@
             }
 
             // --- Sound System ---
-            // Basic Web Audio API setup for simple sound effects
             let audioContext;
             let soundEnabled = true;
 
             function initAudio() {
-                // Check if AudioContext is supported
                 window.AudioContext = window.AudioContext || window.webkitAudioContext;
                 if (window.AudioContext) {
                     audioContext = new AudioContext();
@@ -1109,49 +1101,39 @@
 
             function playSound(frequency, duration, type = 'sine') {
                 if (!soundEnabled || !audioContext) return;
-
                 try {
-                    // Ensure the audio context is running (browsers require user interaction)
                     if (audioContext.state === 'suspended') {
                         audioContext.resume();
                     }
-
                     const oscillator = audioContext.createOscillator();
                     const gainNode = audioContext.createGain();
-
                     oscillator.connect(gainNode);
                     gainNode.connect(audioContext.destination);
-
                     oscillator.type = type;
                     oscillator.frequency.value = frequency;
-                    gainNode.gain.value = 0.1; // Volume
-
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime); // Set initial volume
                     oscillator.start();
-                    // Fade out to prevent clicking
-                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000);
+                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration / 1000);
                     oscillator.stop(audioContext.currentTime + duration / 1000);
                 } catch (e) {
                     console.error("Error playing sound:", e);
                 }
             }
 
-            // Define sound effects
             const sounds = {
-                placeDefender: () => playSound(300, 200, 'sine'), // Low beep
-                hitPathogen: () => playSound(600, 100, 'square'), // Sharp hit
-                defeatPathogen: () => playSound(800, 300, 'sine'), // Rising tone
-                gameOver: () => playSound(200, 1000, 'sawtooth'), // Low descending tone
+                placeDefender: () => playSound(300, 200, 'sine'),
+                hitPathogen: () => playSound(600, 100, 'square'),
+                defeatPathogen: () => playSound(800, 300, 'sine'),
+                gameOver: () => playSound(200, 1000, 'sawtooth'),
                 levelComplete: () => {
-                    // Simple melody for level complete
                     playSound(523.25, 200, 'sine'); // C5
                     setTimeout(() => playSound(659.25, 200, 'sine'), 200); // E5
                     setTimeout(() => playSound(783.99, 400, 'sine'), 400); // G5
                 },
-                insufficientResources: () => playSound(150, 300, 'sawtooth') // Low buzz
+                insufficientResources: () => playSound(150, 300, 'sawtooth')
             };
 
             // --- Game State ---
-            // Game state
             const gameState = {
                 isPlaying: false,
                 isPaused: false,
@@ -1167,17 +1149,19 @@
                 pathogens: [],
                 projectiles: [],
                 lastResourceUpdate: Date.now(),
-                resourceRate: 2, // Energy points per second
+                resourceRate: 2,
                 gameLoop: null,
                 timerInterval: null,
                 pathogenSpawnInterval: null,
                 waveTimeout: null,
-                startTime: null, // For tracking game time
-                levelStartTime: null, // For tracking level time
-                totalScore: 0, // Cumulative score across levels
-                levelScore: 0 // Score for the current level
+                startTime: null,
+                levelStartTime: null,
+                totalScore: 0,
+                levelScore: 0,
+                scaleFactor: 1 // For responsive scaling
             };
-            // DOM elements
+
+            const gameBoardContainer = document.getElementById('game-board-container');
             const gameBoard = document.getElementById('game-board');
             const resourcesDisplay = document.getElementById('resources');
             const healthDisplay = document.getElementById('health');
@@ -1199,172 +1183,47 @@
             const muteBtn = document.getElementById('mute-btn');
             const unmutedIcon = document.getElementById('unmuted-icon');
             const mutedIcon = document.getElementById('muted-icon');
-            // Cell definitions
-            const cellTypes = {
-                neutrophil: {
-                    name: 'Neutrophil',
-                    cost: 10,
-                    health: 50,
-                    damage: 10,
-                    range: 100,
-                    attackSpeed: 1000, // ms between attacks
-                    color: '#4c6fff',
-                    size: 30,
-                    description: 'Fast first responder that attacks bacteria'
-                },
-                macrophage: {
-                    name: 'Macrophage',
-                    cost: 20,
-                    health: 100,
-                    damage: 15,
-                    range: 120,
-                    attackSpeed: 1500,
-                    color: '#9333ea',
-                    size: 35,
-                    description: 'Powerful phagocyte that engulfs pathogens'
-                },
-                tcell: {
-                    name: 'T-Cell',
-                    cost: 30,
-                    health: 70,
-                    damage: 20,
-                    range: 150,
-                    attackSpeed: 2000,
-                    color: '#16a34a',
-                    size: 30,
-                    description: 'Targets specific threats with high damage'
-                },
-                bcell: {
-                    name: 'B-Cell',
-                    cost: 40,
-                    health: 60,
-                    damage: 5,
-                    range: 200,
-                    attackSpeed: 1000,
-                    color: '#dc2626',
-                    size: 30,
-                    description: 'Creates antibodies that weaken pathogens'
-                }
-            };
-            // Pathogen definitions
-            const pathogenTypes = {
-                bacteria: {
-                    name: 'Bacteria',
-                    health: 50,
-                    damage: 10,
-                    speed: 0.7,
-                    color: '#ef4444',
-                    size: 25,
-                    points: 10,
-                    description: 'Single-celled microorganisms'
-                },
-                virus: {
-                    name: 'Virus',
-                    health: 30,
-                    damage: 15,
-                    speed: 1,
-                    color: '#eab308',
-                    size: 20,
-                    points: 15,
-                    description: 'Tiny infectious agents that hijack cells'
-                },
-                fungi: {
-                    name: 'Fungi',
-                    health: 80,
-                    damage: 8,
-                    speed: 0.5,
-                    color: '#16a34a',
-                    size: 30,
-                    points: 20,
-                    description: 'Eukaryotic organisms like yeasts and molds'
-                },
-                parasite: {
-                    name: 'Parasite',
-                    health: 100,
-                    damage: 20,
-                    speed: 0.3,
-                    color: '#9333ea',
-                    size: 35,
-                    points: 25,
-                    description: 'Organisms that live at the expense of the host'
-                }
-            };
-            // Level definitions
-            const levels = {
-                1: {
-                    name: 'Bloodstream',
-                    description: 'Defend against bacteria in the bloodstream.',
-                    background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(220,230,255,0.4) 70%)',
-                    pathogens: ['bacteria'],
-                    pathogenRate: 2000, // ms between spawns
-                    resourceRate: 2,
-                    waves: [
-                        { count: 5, type: 'bacteria', interval: 2000 },
-                        { count: 7, type: 'bacteria', interval: 1800 },
-                        { count: 8, type: 'bacteria', interval: 1500 }
-                    ]
-                },
-                2: {
-                    name: 'Lungs',
-                    description: 'Combat viruses in the respiratory system.',
-                    background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(255,230,230,0.4) 70%)',
-                    pathogens: ['virus', 'bacteria'],
-                    pathogenRate: 1800,
-                    resourceRate: 2.5,
-                    waves: [
-                        { count: 6, type: 'virus', interval: 1800 },
-                        { count: 4, type: 'bacteria', interval: 2000, delay: 2000 },
-                        { count: 10, type: 'virus', interval: 1500 }
-                    ]
-                },
-                3: {
-                    name: 'Intestines',
-                    description: 'Fight parasites in the digestive tract.',
-                    background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(230,255,230,0.4) 70%)',
-                    pathogens: ['parasite', 'bacteria'],
-                    pathogenRate: 2200,
-                    resourceRate: 2.2,
-                    waves: [
-                        { count: 3, type: 'parasite', interval: 3000 },
-                        { count: 5, type: 'bacteria', interval: 2000, delay: 1000 },
-                        { count: 4, type: 'parasite', interval: 2500 }
-                    ]
-                },
-                4: {
-                    name: 'Skin',
-                    description: 'Defend against fungi on the skin surface.',
-                    background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(255,255,230,0.4) 70%)',
-                    pathogens: ['fungi', 'bacteria'],
-                    pathogenRate: 1900,
-                    resourceRate: 2.3,
-                    waves: [
-                        { count: 4, type: 'fungi', interval: 2500 },
-                        { count: 6, type: 'bacteria', interval: 1800, delay: 500 },
-                        { count: 5, type: 'fungi', interval: 2200 }
-                    ]
-                }
-            };
-            // Educational facts
-            const immuneFacts = [
-                "Your immune system contains approximately 1 trillion white blood cells and can remember pathogens it has encountered for decades!",
-                "Neutrophils are the most abundant type of white blood cell, making up 60-70% of all circulating white blood cells.",
-                "The bone marrow produces about 100 billion new white blood cells every day to maintain your immune defenses.",
-                "Vaccines work by training your immune system to recognize and fight specific pathogens without causing the disease.",
-                "Fever is actually an immune response that helps your body fight infection by creating an environment that's less favorable for pathogens.",
-                "Your skin is part of your immune system - it acts as a physical barrier to keep pathogens out.",
-                "Antibodies are Y-shaped proteins that can recognize and bind to specific antigens on pathogens.",
-                "Memory B-cells can survive for decades, providing long-term immunity against pathogens you've encountered before."
-            ];
-            // Initialize game
-            function initGame() {
-                // Initialize audio system
-                initAudio();
 
-                // Set up language switcher
+            const cellTypes = {
+                neutrophil: { name: 'Neutrophil', cost: 10, health: 50, damage: 10, range: 100, attackSpeed: 1000, color: '#4c6fff', size: 30, description: 'Fast first responder that attacks bacteria' },
+                macrophage: { name: 'Macrophage', cost: 20, health: 100, damage: 15, range: 120, attackSpeed: 1500, color: '#9333ea', size: 35, description: 'Powerful phagocyte that engulfs pathogens' },
+                tcell: { name: 'T-Cell', cost: 30, health: 70, damage: 20, range: 150, attackSpeed: 2000, color: '#16a34a', size: 30, description: 'Targets specific threats with high damage' },
+                bcell: { name: 'B-Cell', cost: 40, health: 60, damage: 5, range: 200, attackSpeed: 1000, color: '#dc2626', size: 30, description: 'Creates antibodies that weaken pathogens' }
+            };
+
+            const pathogenTypes = {
+                bacteria: { name: 'Bacteria', health: 50, damage: 10, speed: 0.7, color: '#ef4444', size: 25, points: 10, description: 'Single-celled microorganisms' },
+                virus: { name: 'Virus', health: 30, damage: 15, speed: 1, color: '#eab308', size: 20, points: 15, description: 'Tiny infectious agents that hijack cells' },
+                fungi: { name: 'Fungi', health: 80, damage: 8, speed: 0.5, color: '#16a34a', size: 30, points: 20, description: 'Eukaryotic organisms like yeasts and molds' },
+                parasite: { name: 'Parasite', health: 100, damage: 20, speed: 0.3, color: '#9333ea', size: 35, points: 25, description: 'Organisms that live at the expense of the host' }
+            };
+
+            const levels = {
+                1: { name: 'Bloodstream', description: 'Defend against bacteria...', background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(220,230,255,0.4) 70%)', resourceRate: 2, waves: [{ count: 5, type: 'bacteria', interval: 2000 }, { count: 7, type: 'bacteria', interval: 1800 }, { count: 8, type: 'bacteria', interval: 1500 }] },
+                2: { name: 'Lungs', description: 'Combat viruses...', background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(255,230,230,0.4) 70%)', resourceRate: 2.5, waves: [{ count: 6, type: 'virus', interval: 1800 }, { count: 4, type: 'bacteria', interval: 2000, delay: 2000 }, { count: 10, type: 'virus', interval: 1500 }] },
+                3: { name: 'Intestines', description: 'Fight parasites...', background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(230,255,230,0.4) 70%)', resourceRate: 2.2, waves: [{ count: 3, type: 'parasite', interval: 3000 }, { count: 5, type: 'bacteria', interval: 2000, delay: 1000 }, { count: 4, type: 'parasite', interval: 2500 }] },
+                4: { name: 'Skin', description: 'Defend against fungi...', background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(255,255,230,0.4) 70%)', resourceRate: 2.3, waves: [{ count: 4, type: 'fungi', interval: 2500 }, { count: 6, type: 'bacteria', interval: 1800, delay: 500 }, { count: 5, type: 'fungi', interval: 2200 }] }
+            };
+
+            const immuneFacts = [ "Your immune system contains approximately 1 trillion white blood cells...", "Neutrophils are the most abundant type of white blood cell...", "The bone marrow produces about 100 billion new white blood cells every day...", "Vaccines work by training your immune system...", "Fever is actually an immune response...", "Your skin is part of your immune system...", "Antibodies are Y-shaped proteins...", "Memory B-cells can survive for decades..." ];
+            
+            // --- New Responsive Scaling Logic ---
+            function resizeGame() {
+                const containerWidth = gameBoardContainer.clientWidth;
+                const nativeWidth = 800; // The fixed width the game logic uses
+                gameState.scaleFactor = containerWidth / nativeWidth;
+                gameBoard.style.transform = `scale(${gameState.scaleFactor})`;
+            }
+
+
+            function initGame() {
+                initAudio();
+                resizeGame(); // Initial resize
+                window.addEventListener('resize', resizeGame); // Add resize listener
+
                 document.getElementById('lang-en').addEventListener('click', () => switchLanguage('en'));
                 document.getElementById('lang-th').addEventListener('click', () => switchLanguage('th'));
                 
-                // Set up event listeners
                 document.getElementById('start-game').addEventListener('click', startGame);
                 document.getElementById('pause-btn').addEventListener('click', togglePause);
                 document.getElementById('resume-game').addEventListener('click', togglePause);
@@ -1379,7 +1238,6 @@
                 document.getElementById('submit-score-btn').addEventListener('click', submitScore);
                 muteBtn.addEventListener('click', toggleMute);
 
-                // Tab navigation in info modal
                 document.querySelectorAll('.tab').forEach(tab => {
                     tab.addEventListener('click', function() {
                         const tabId = this.getAttribute('data-tab');
@@ -1389,50 +1247,44 @@
                         document.getElementById(`${tabId}-content`).classList.remove('hidden');
                     });
                 });
-                // Cell selection
                 document.querySelectorAll('.cell-card').forEach(cell => {
                     cell.addEventListener('click', function() {
                         const cellType = this.getAttribute('data-cell');
                         const cost = parseInt(this.getAttribute('data-cost'));
                         selectCell(cellType, cost);
                     });
-                    // Add tooltips
-                    cell.addEventListener('mouseenter', function(e) {
-                        const cellType = this.getAttribute('data-cell');
-                        showTooltip(e, cellTypes[cellType].description);
-                    });
-                    cell.addEventListener('mouseleave', function() {
-                        hideTooltip();
-                    });
+                    cell.addEventListener('mouseenter', e => showTooltip(e, cellTypes[cell.dataset.cell].description));
+                    cell.addEventListener('mouseleave', hideTooltip);
                 });
-                // Game board click
+                
+                // --- MODIFIED CLICK LISTENER ---
                 gameBoard.addEventListener('click', function(e) {
                     if (gameState.selectedCell && !gameState.isPaused && gameState.isPlaying) {
                         const rect = gameBoard.getBoundingClientRect();
-                        const x = e.clientX - rect.left;
-                        const y = e.clientY - rect.top;
+                        // Adjust click coordinates based on the scale factor
+                        const x = (e.clientX - rect.left) / gameState.scaleFactor;
+                        const y = (e.clientY - rect.top) / gameState.scaleFactor;
                         placeDefender(x, y);
                     }
                 });
-                // Update displays
                 updateDisplays();
             }
-            // Start the game
+
             function startGame() {
                 gameState.isPlaying = true;
                 gameState.isPaused = false;
                 startModal.style.display = 'none';
                 
-                // Play music on user interaction
-                backgroundMusic.play().catch(e => console.log("Autoplay was prevented."));
+                if(!backgroundMusic.muted) {
+                    backgroundMusic.play().catch(e => console.log("Autoplay was prevented. User must interact first."));
+                }
 
-                // Reset game state for new game
-                if (gameState.level === 1) { // Only reset total score/time if starting from level 1
+                if (gameState.level === 1) {
                     gameState.totalScore = 0;
                     gameState.startTime = Date.now();
                 }
-                gameState.levelStartTime = Date.now(); // Reset level start time
-                gameState.levelScore = 0; // Reset level score
+                gameState.levelStartTime = Date.now();
+                gameState.levelScore = 0;
                 gameState.resources = 100;
                 gameState.health = 100;
                 gameState.pathogensDefeated = 0;
@@ -1441,26 +1293,22 @@
                 gameState.pathogens = [];
                 gameState.projectiles = [];
                 gameState.lastResourceUpdate = Date.now();
-                // Set up the current level
+
                 const currentLevel = levels[gameState.level];
                 gameState.resourceRate = currentLevel.resourceRate;
                 gameState.pathogensTotal = currentLevel.waves.reduce((total, wave) => total + wave.count, 0);
                 gameBoard.style.backgroundImage = currentLevel.background;
-                // Update displays
+                
                 updateDisplays();
-                // Start game loops
                 startGameLoop();
                 startTimer();
                 startWave(gameState.wave);
-                // Play sound
-                // sounds.levelComplete(); // Optional: play a sound when level starts
             }
-            // Game loop
+
             function startGameLoop() {
                 if (gameState.gameLoop) clearInterval(gameState.gameLoop);
                 gameState.gameLoop = setInterval(() => {
                     if (gameState.isPaused) return;
-                    // Update resources
                     const now = Date.now();
                     const deltaTime = now - gameState.lastResourceUpdate;
                     if (deltaTime >= 1000) {
@@ -1468,11 +1316,8 @@
                         gameState.lastResourceUpdate = now;
                         updateDisplays();
                     }
-                    // Move pathogens
                     movePathogens();
-                    // Move projectiles
                     moveProjectiles();
-                    // Defenders attack
                     gameState.defenders.forEach(defender => {
                         if (defender.lastAttack + defender.attackSpeed <= now) {
                             const target = findTarget(defender);
@@ -1482,14 +1327,12 @@
                             }
                         }
                     });
-                    // Check for game over
                     if (gameState.health <= 0) {
                         gameOver();
                     }
                 }, 16); // ~60fps
             }
 
-            // Timer management
             function startTimer() {
                 if (gameState.timerInterval) clearInterval(gameState.timerInterval);
                 gameState.timerInterval = setInterval(() => {
@@ -1501,7 +1344,6 @@
                 }, 1000);
             }
 
-            // Start a wave of pathogens
             function startWave(waveNumber) {
                 if (waveNumber > gameState.totalWaves) {
                     levelComplete();
@@ -1510,9 +1352,7 @@
                 currentWaveDisplay.textContent = waveNumber;
                 const wave = levels[gameState.level].waves[waveNumber - 1];
                 let count = 0;
-                // Clear any existing spawn interval
                 if (gameState.pathogenSpawnInterval) clearInterval(gameState.pathogenSpawnInterval);
-                // Start spawning after delay if specified
                 setTimeout(() => {
                     gameState.pathogenSpawnInterval = setInterval(() => {
                         if (gameState.isPaused) return;
@@ -1520,44 +1360,33 @@
                         count++;
                         if (count >= wave.count) {
                             clearInterval(gameState.pathogenSpawnInterval);
-                            // Set timeout for next wave
                             if (gameState.waveTimeout) clearTimeout(gameState.waveTimeout);
                             gameState.waveTimeout = setTimeout(() => {
                                 gameState.wave++;
                                 startWave(gameState.wave);
-                            }, 10000); // 10 seconds between waves
+                            }, 10000);
                         }
                     }, wave.interval);
                 }, wave.delay || 0);
             }
-            // Spawn a pathogen
+
             function spawnPathogen(type) {
                 const pathogenType = pathogenTypes[type];
-                const y = Math.random() * (gameBoard.clientHeight - 60) + 30;
+                const y = Math.random() * (500 - 60) + 30; // 500 is fixed board height
                 const pathogen = {
                     id: 'pathogen-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-                    type: type,
-                    x: 0,
-                    y: y,
-                    health: pathogenType.health,
-                    maxHealth: pathogenType.health,
-                    damage: pathogenType.damage,
-                    speed: pathogenType.speed,
-                    size: pathogenType.size,
-                    points: pathogenType.points,
+                    type: type, x: 0, y: y,
+                    health: pathogenType.health, maxHealth: pathogenType.health,
+                    damage: pathogenType.damage, speed: pathogenType.speed,
+                    size: pathogenType.size, points: pathogenType.points,
                     element: createPathogenElement(type, y)
                 };
                 gameState.pathogens.push(pathogen);
                 gameBoard.appendChild(pathogen.element);
-                // Add tooltip
-                pathogen.element.addEventListener('mouseenter', function(e) {
-                    showTooltip(e, `${pathogenType.name}: ${pathogenType.description}`);
-                });
-                pathogen.element.addEventListener('mouseleave', function() {
-                    hideTooltip();
-                });
+                pathogen.element.addEventListener('mouseenter', e => showTooltip(e, `${pathogenType.name}: ${pathogenType.description}`));
+                pathogen.element.addEventListener('mouseleave', hideTooltip);
             }
-            // Create pathogen DOM element
+            
             function createPathogenElement(type, y) {
                 const pathogenType = pathogenTypes[type];
                 const element = document.createElement('div');
@@ -1568,31 +1397,15 @@
                 element.style.borderRadius = '50%';
                 element.style.left = '0px';
                 element.style.top = y + 'px';
-                // Add inner details to make it look more like the pathogen type
+                
+                let innerHTML = '';
                 if (type === 'bacteria') {
-                    element.innerHTML = `
-                        <svg viewBox="0 0 100 100" width="100%" height="100%">
-                            <circle cx="30" cy="30" r="10" fill="white" opacity="0.6" />
-                            <circle cx="60" cy="40" r="8" fill="white" opacity="0.6" />
-                            <circle cx="40" cy="70" r="12" fill="white" opacity="0.6" />
-                        </svg>
-                    `;
+                    innerHTML = `<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="30" cy="30" r="10" fill="white" opacity="0.6" /><circle cx="60" cy="40" r="8" fill="white" opacity="0.6" /><circle cx="40" cy="70" r="12" fill="white" opacity="0.6" /></svg>`;
                 } else if (type === 'virus') {
-                    element.innerHTML = `
-                        <svg viewBox="0 0 100 100" width="100%" height="100%">
-                            <circle cx="50" cy="50" r="30" fill="white" opacity="0.6" />
-                            <line x1="50" y1="0" x2="50" y2="20" stroke="white" stroke-width="4" />
-                            <line x1="50" y1="80" x2="50" y2="100" stroke="white" stroke-width="4" />
-                            <line x1="0" y1="50" x2="20" y2="50" stroke="white" stroke-width="4" />
-                            <line x1="80" y1="50" x2="100" y2="50" stroke="white" stroke-width="4" />
-                            <line x1="15" y1="15" x2="30" y2="30" stroke="white" stroke-width="4" />
-                            <line x1="70" y1="70" x2="85" y2="85" stroke="white" stroke-width="4" />
-                            <line x1="15" y1="85" x2="30" y2="70" stroke="white" stroke-width="4" />
-                            <line x1="70" y1="30" x2="85" y2="15" stroke="white" stroke-width="4" />
-                        </svg>
-                    `;
+                    innerHTML = `<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="50" r="30" fill="white" opacity="0.6" /><line x1="50" y1="0" x2="50" y2="20" stroke="white" stroke-width="4" /><line x1="50" y1="80" x2="50" y2="100" stroke="white" stroke-width="4" /><line x1="0" y1="50" x2="20" y2="50" stroke="white" stroke-width="4" /><line x1="80" y1="50" x2="100" y2="50" stroke="white" stroke-width="4" /><line x1="15" y1="15" x2="30" y2="30" stroke="white" stroke-width="4" /><line x1="70" y1="70" x2="85" y2="85" stroke="white" stroke-width="4" /><line x1="15" y1="85" x2="30" y2="70" stroke="white" stroke-width="4" /><line x1="70" y1="30" x2="85" y2="15" stroke="white" stroke-width="4" /></svg>`;
                 }
-                // Add health bar
+                element.innerHTML = innerHTML;
+                
                 const healthBar = document.createElement('div');
                 healthBar.className = 'absolute -top-3 left-0 w-full h-1 bg-gray-300 rounded-full overflow-hidden';
                 const healthFill = document.createElement('div');
@@ -1602,30 +1415,22 @@
                 element.appendChild(healthBar);
                 return element;
             }
-            // Move pathogens
+
             function movePathogens() {
-                const boardWidth = gameBoard.clientWidth;
+                const boardWidth = 800; // Use fixed board width for logic
                 gameState.pathogens.forEach((pathogen, index) => {
                     pathogen.x += pathogen.speed;
                     pathogen.element.style.left = pathogen.x + 'px';
-                    // Update health bar
+                    
                     const healthPercentage = (pathogen.health / pathogen.maxHealth) * 100;
-                    const healthBar = pathogen.element.querySelector('div > div');
-                    if (healthBar) {
-                        healthBar.style.width = healthPercentage + '%';
-                        // Change color based on health
-                        if (healthPercentage > 50) {
-                            healthBar.className = 'h-full bg-green-500 transition-all duration-300';
-                        } else if (healthPercentage > 25) {
-                            healthBar.className = 'h-full bg-yellow-500 transition-all duration-300';
-                        } else {
-                            healthBar.className = 'h-full bg-red-500 transition-all duration-300';
-                        }
+                    const healthBarFill = pathogen.element.querySelector('div > div');
+                    if (healthBarFill) {
+                        healthBarFill.style.width = healthPercentage + '%';
+                        healthBarFill.className = `h-full transition-all duration-300 ${healthPercentage > 50 ? 'bg-green-500' : healthPercentage > 25 ? 'bg-yellow-500' : 'bg-red-500'}`;
                     }
-                    // Check if pathogen reached the end
+
                     if (pathogen.x > boardWidth - pathogen.size) {
                         gameState.health -= pathogen.damage;
-                        // Play sound
                         sounds.hitPathogen();
                         gameBoard.removeChild(pathogen.element);
                         gameState.pathogens.splice(index, 1);
@@ -1633,411 +1438,232 @@
                     }
                 });
             }
-            // Select a cell to place
+
             function selectCell(cellType, cost) {
                 if (gameState.resources >= cost) {
-                    gameState.selectedCell = {
-                        type: cellType,
-                        cost: cost
-                    };
-                    // Update visual selection
-                    document.querySelectorAll('.cell-card').forEach(card => {
-                        card.classList.remove('ring-2', 'ring-blue-500');
-                    });
+                    gameState.selectedCell = { type: cellType, cost: cost };
+                    document.querySelectorAll('.cell-card').forEach(card => card.classList.remove('ring-2', 'ring-blue-500'));
                     document.querySelector(`[data-cell="${cellType}"]`).classList.add('ring-2', 'ring-blue-500');
                 } else {
-                    // Visual feedback for not enough resources
                     const cellCard = document.querySelector(`[data-cell="${cellType}"]`);
                     cellCard.classList.add('animate-shake');
-                    // Play sound
                     sounds.insufficientResources();
-                    setTimeout(() => {
-                        cellCard.classList.remove('animate-shake');
-                    }, 500);
+                    setTimeout(() => cellCard.classList.remove('animate-shake'), 500);
                 }
             }
-            // Place a defender on the board
+
             function placeDefender(x, y) {
                 if (!gameState.selectedCell) return;
                 const cellType = cellTypes[gameState.selectedCell.type];
-                const cost = gameState.selectedCell.cost;
-                // Check if we have enough resources
-                if (gameState.resources >= cost) {
-                    // Check if position is valid (not too close to edge)
-                    if (x < gameBoard.clientWidth - 100 && x > 50 && y > 30 && y < gameBoard.clientHeight - 30) {
-                        // Check if there's already a defender at this position
-                        const tooClose = gameState.defenders.some(defender => {
-                            const distance = Math.sqrt(Math.pow(defender.x - x, 2) + Math.pow(defender.y - y, 2));
-                            return distance < cellType.size * 1.5;
-                        });
+                if (gameState.resources >= cellType.cost) {
+                    // Use fixed board dimensions for placement logic
+                    if (x < 800 - 100 && x > 50 && y > 30 && y < 500 - 30) {
+                        const tooClose = gameState.defenders.some(d => Math.sqrt(Math.pow(d.x - x, 2) + Math.pow(d.y - y, 2)) < cellType.size * 1.5);
                         if (!tooClose) {
-                            // Create defender
                             const defender = {
-                                id: 'defender-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-                                type: gameState.selectedCell.type,
-                                x: x,
-                                y: y,
-                                health: cellType.health,
-                                damage: cellType.damage,
-                                range: cellType.range,
-                                attackSpeed: cellType.attackSpeed,
-                                lastAttack: 0,
+                                id: 'defender-' + Date.now() + Math.random(), type: gameState.selectedCell.type,
+                                x: x, y: y, health: cellType.health, damage: cellType.damage, range: cellType.range,
+                                attackSpeed: cellType.attackSpeed, lastAttack: 0,
                                 element: createDefenderElement(gameState.selectedCell.type, x, y)
                             };
                             gameState.defenders.push(defender);
                             gameBoard.appendChild(defender.element);
-                            // Add tooltip
-                            defender.element.addEventListener('mouseenter', function(e) {
-                                showTooltip(e, `${cellType.name}: ${cellType.description}`);
-                            });
-                            defender.element.addEventListener('mouseleave', function() {
-                                hideTooltip();
-                            });
-                            // Deduct resources
-                            gameState.resources -= cost;
-                            // Play sound
+                            defender.element.addEventListener('mouseenter', e => showTooltip(e, `${cellType.name}: ${cellType.description}`));
+                            defender.element.addEventListener('mouseleave', hideTooltip);
+                            gameState.resources -= cellType.cost;
                             sounds.placeDefender();
                             updateDisplays();
-                            // Clear selection
                             gameState.selectedCell = null;
-                            document.querySelectorAll('.cell-card').forEach(card => {
-                                card.classList.remove('ring-2', 'ring-blue-500');
-                            });
+                            document.querySelectorAll('.cell-card').forEach(card => card.classList.remove('ring-2', 'ring-blue-500'));
                         }
                     }
                 }
             }
-            // Create defender DOM element
+
             function createDefenderElement(type, x, y) {
                 const cellType = cellTypes[type];
                 const element = document.createElement('div');
                 element.className = 'defender';
-                element.style.width = cellType.size + 'px';
-                element.style.height = cellType.size + 'px';
+                element.style.width = `${cellType.size}px`;
+                element.style.height = `${cellType.size}px`;
                 element.style.backgroundColor = cellType.color;
                 element.style.borderRadius = '50%';
-                element.style.left = (x - cellType.size / 2) + 'px';
-                element.style.top = (y - cellType.size / 2) + 'px';
-                // Add inner details based on cell type
-                if (type === 'neutrophil') {
-                    element.innerHTML = `
-                        <svg viewBox="0 0 100 100" width="100%" height="100%">
-                            <circle cx="50" cy="50" r="40" fill="white" opacity="0.6" />
-                            <circle cx="50" cy="50" r="20" fill="${cellType.color}" opacity="0.8" />
-                        </svg>
-                    `;
-                } else if (type === 'macrophage') {
-                    element.innerHTML = `
-                        <svg viewBox="0 0 100 100" width="100%" height="100%">
-                            <path d="M30,30 Q50,10 70,30 Q90,50 70,70 Q50,90 30,70 Q10,50 30,30" fill="white" opacity="0.6" />
-                        </svg>
-                    `;
-                } else if (type === 'tcell') {
-                    element.innerHTML = `
-                        <svg viewBox="0 0 100 100" width="100%" height="100%">
-                            <circle cx="50" cy="50" r="35" fill="white" opacity="0.6" />
-                            <rect x="40" y="20" width="20" height="60" fill="${cellType.color}" opacity="0.8" />
-                            <rect x="20" y="40" width="60" height="20" fill="${cellType.color}" opacity="0.8" />
-                        </svg>
-                    `;
-                } else if (type === 'bcell') {
-                    element.innerHTML = `
-                        <svg viewBox="0 0 100 100" width="100%" height="100%">
-                            <circle cx="50" cy="50" r="35" fill="white" opacity="0.6" />
-                            <text x="50" y="65" font-size="50" text-anchor="middle" fill="${cellType.color}" opacity="0.8">B</text>
-                        </svg>
-                    `;
-                }
-                // Add range indicator (initially hidden)
+                element.style.left = `${x - cellType.size / 2}px`;
+                element.style.top = `${y - cellType.size / 2}px`;
+                
+                let innerHTML = '';
+                if (type === 'neutrophil') innerHTML = `<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="50" r="40" fill="white" opacity="0.6" /><circle cx="50" cy="50" r="20" fill="${cellType.color}" opacity="0.8" /></svg>`;
+                else if (type === 'macrophage') innerHTML = `<svg viewBox="0 0 100 100" width="100%" height="100%"><path d="M30,30 Q50,10 70,30 Q90,50 70,70 Q50,90 30,70 Q10,50 30,30" fill="white" opacity="0.6" /></svg>`;
+                else if (type === 'tcell') innerHTML = `<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="50" r="35" fill="white" opacity="0.6" /><rect x="40" y="20" width="20" height="60" fill="${cellType.color}" opacity="0.8" /><rect x="20" y="40" width="60" height="20" fill="${cellType.color}" opacity="0.8" /></svg>`;
+                else if (type === 'bcell') innerHTML = `<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="50" r="35" fill="white" opacity="0.6" /><text x="50" y="65" font-size="50" text-anchor="middle" fill="${cellType.color}" opacity="0.8">B</text></svg>`;
+                element.innerHTML = innerHTML;
+
                 const rangeIndicator = document.createElement('div');
                 rangeIndicator.className = 'absolute rounded-full border border-dashed opacity-0 transition-opacity duration-300';
-                rangeIndicator.style.width = (cellType.range * 2) + 'px';
-                rangeIndicator.style.height = (cellType.range * 2) + 'px';
-                rangeIndicator.style.left = (-cellType.range + cellType.size / 2) + 'px';
-                rangeIndicator.style.top = (-cellType.range + cellType.size / 2) + 'px';
+                rangeIndicator.style.width = `${cellType.range * 2}px`;
+                rangeIndicator.style.height = `${cellType.range * 2}px`;
+                rangeIndicator.style.left = `${-cellType.range + cellType.size / 2}px`;
+                rangeIndicator.style.top = `${-cellType.range + cellType.size / 2}px`;
                 rangeIndicator.style.borderColor = cellType.color;
                 element.appendChild(rangeIndicator);
-                // Show range on hover
-                element.addEventListener('mouseenter', () => {
-                    rangeIndicator.classList.add('opacity-30');
-                });
-                element.addEventListener('mouseleave', () => {
-                    rangeIndicator.classList.remove('opacity-30');
-                });
+                element.addEventListener('mouseenter', () => rangeIndicator.classList.add('opacity-30'));
+                element.addEventListener('mouseleave', () => rangeIndicator.classList.remove('opacity-30'));
                 return element;
             }
-            // Find a target for a defender
+
             function findTarget(defender) {
-                for (const pathogen of gameState.pathogens) {
-                    const distance = Math.sqrt(Math.pow(defender.x - pathogen.x - pathogen.size/2, 2) + 
-                                              Math.pow(defender.y - pathogen.y - pathogen.size/2, 2));
-                    if (distance <= defender.range) {
-                        return pathogen;
-                    }
-                }
-                return null;
+                return gameState.pathogens.find(p => {
+                    const distance = Math.sqrt(Math.pow(defender.x - p.x - p.size/2, 2) + Math.pow(defender.y - p.y - p.size/2, 2));
+                    return distance <= defender.range;
+                });
             }
-            // Attack a pathogen
+
             function attack(defender, pathogen) {
-                // Create projectile
                 const projectile = {
-                    id: 'projectile-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-                    x: defender.x,
-                    y: defender.y,
-                    targetId: pathogen.id,
-                    damage: defender.damage,
-                    speed: 5,
-                    size: 8,
+                    id: 'projectile-' + Date.now() + Math.random(),
+                    x: defender.x, y: defender.y, targetId: pathogen.id,
+                    damage: defender.damage, speed: 5, size: 8,
                     element: createProjectileElement(defender.type, defender.x, defender.y)
                 };
                 gameState.projectiles.push(projectile);
                 gameBoard.appendChild(projectile.element);
             }
-            // Create projectile DOM element
+
             function createProjectileElement(defenderType, x, y) {
                 const element = document.createElement('div');
                 element.className = 'projectile';
                 element.style.width = '8px';
                 element.style.height = '8px';
-                // Style based on defender type
-                if (defenderType === 'neutrophil') {
-                    element.style.backgroundColor = '#4c6fff';
-                } else if (defenderType === 'macrophage') {
-                    element.style.backgroundColor = '#9333ea';
-                } else if (defenderType === 'tcell') {
-                    element.style.backgroundColor = '#16a34a';
-                } else if (defenderType === 'bcell') {
-                    element.style.backgroundColor = '#dc2626';
-                }
-                element.style.left = (x - 4) + 'px';
-                element.style.top = (y - 4) + 'px';
+                element.style.backgroundColor = cellTypes[defenderType].color;
+                element.style.left = `${x - 4}px`;
+                element.style.top = `${y - 4}px`;
                 return element;
             }
-            // Move projectiles
+
             function moveProjectiles() {
-                gameState.projectiles.forEach((projectile, index) => {
-                    // Find target
-                    const target = gameState.pathogens.find(p => p.id === projectile.targetId);
+                gameState.projectiles.forEach((proj, index) => {
+                    const target = gameState.pathogens.find(p => p.id === proj.targetId);
                     if (target) {
-                        // Calculate direction to target
                         const targetX = target.x + target.size / 2;
                         const targetY = target.y + target.size / 2;
-                        const dx = targetX - projectile.x;
-                        const dy = targetY - projectile.y;
+                        const dx = targetX - proj.x;
+                        const dy = targetY - proj.y;
                         const distance = Math.sqrt(dx * dx + dy * dy);
-                        if (distance < 5) {
-                            // Hit target
-                            hitPathogen(target, projectile.damage);
-                            // Remove projectile
-                            if (projectile.element.parentNode === gameBoard) {
-                                gameBoard.removeChild(projectile.element);
-                            }
+                        if (distance < proj.speed) {
+                            hitPathogen(target, proj.damage);
+                            if (proj.element.parentNode) gameBoard.removeChild(proj.element);
                             gameState.projectiles.splice(index, 1);
                         } else {
-                            // Move towards target
-                            const vx = (dx / distance) * projectile.speed;
-                            const vy = (dy / distance) * projectile.speed;
-                            projectile.x += vx;
-                            projectile.y += vy;
-                            projectile.element.style.left = (projectile.x - 4) + 'px';
-                            projectile.element.style.top = (projectile.y - 4) + 'px';
+                            proj.x += (dx / distance) * proj.speed;
+                            proj.y += (dy / distance) * proj.speed;
+                            proj.element.style.left = `${proj.x - 4}px`;
+                            proj.element.style.top = `${proj.y - 4}px`;
                         }
                     } else {
-                        // Target is gone, remove projectile
-                        if (projectile.element.parentNode === gameBoard) {
-                            gameBoard.removeChild(projectile.element);
-                        }
+                        if (proj.element.parentNode) gameBoard.removeChild(proj.element);
                         gameState.projectiles.splice(index, 1);
                     }
                 });
             }
-            // Hit a pathogen with damage
+
             function hitPathogen(pathogen, damage) {
                 pathogen.health -= damage;
-                // Update health bar
-                const healthPercentage = (pathogen.health / pathogen.maxHealth) * 100;
-                const healthBar = pathogen.element.querySelector('div > div');
-                if (healthBar) {
-                    healthBar.style.width = healthPercentage + '%';
-                }
-                // Check if pathogen is defeated
                 if (pathogen.health <= 0) {
                     defeatPathogen(pathogen);
                 } else {
-                     // Play hit sound for non-lethal hits
                     sounds.hitPathogen();
                 }
             }
-            // Defeat a pathogen
+
             function defeatPathogen(pathogen) {
-                // Remove from DOM
-                if (pathogen.element.parentNode === gameBoard) {
-                    gameBoard.removeChild(pathogen.element);
-                }
-                // Remove from game state
+                if (pathogen.element.parentNode) gameBoard.removeChild(pathogen.element);
                 const index = gameState.pathogens.findIndex(p => p.id === pathogen.id);
-                if (index !== -1) {
-                    gameState.pathogens.splice(index, 1);
-                }
-                // Update stats
+                if (index > -1) gameState.pathogens.splice(index, 1);
                 gameState.pathogensDefeated++;
-                gameState.resources += pathogen.points / 2; // Bonus resources
-                gameState.levelScore += pathogen.points; // Add to level score
-                // Play sound
+                gameState.resources += pathogen.points / 2;
+                gameState.levelScore += pathogen.points;
                 sounds.defeatPathogen();
-                // Update displays
                 updateDisplays();
-                // Check if level is complete
                 if (gameState.pathogensDefeated >= gameState.pathogensTotal && gameState.pathogens.length === 0) {
-                    if (gameState.waveTimeout) {
-                        clearTimeout(gameState.waveTimeout);
-                    }
+                    if (gameState.waveTimeout) clearTimeout(gameState.waveTimeout);
                     levelComplete();
                 }
             }
-            // Update game displays
+
             function updateDisplays() {
                 resourcesDisplay.textContent = Math.floor(gameState.resources);
-                healthDisplay.textContent = Math.floor(gameState.health);
+                healthDisplay.textContent = Math.max(0, Math.floor(gameState.health));
                 levelDisplay.textContent = gameState.level;
                 totalScoreDisplay.textContent = gameState.totalScore + gameState.levelScore;
                 pathogensDefeatedDisplay.textContent = gameState.pathogensDefeated;
                 pathogensTotalDisplay.textContent = gameState.pathogensTotal;
                 currentWaveDisplay.textContent = gameState.wave;
                 totalWavesDisplay.textContent = gameState.totalWaves;
-                // Update progress bar
-                const progress = (gameState.pathogensDefeated / gameState.pathogensTotal) * 100;
-                progressBar.style.width = progress + '%';
-                
-                // Update level info display
+                progressBar.style.width = `${(gameState.pathogensDefeated / gameState.pathogensTotal) * 100}%`;
                 const currentLevel = levels[gameState.level];
                 if (currentLevel) {
-                    document.getElementById('level-name').textContent = translations[currentLanguage].levelName;
-                    document.getElementById('level-desc').textContent = translations[currentLanguage].levelDesc;
+                    document.getElementById('level-name').textContent = currentLevel.name;
+                    document.getElementById('level-desc').textContent = currentLevel.description;
                 }
             }
-            // Toggle pause state
+
             function togglePause() {
                 gameState.isPaused = !gameState.isPaused;
+                pauseModal.classList.toggle('hidden');
                 if (gameState.isPaused) {
-                    pauseModal.classList.remove('hidden');
                     backgroundMusic.pause();
-                } else {
-                    pauseModal.classList.add('hidden');
-                    if (!backgroundMusic.muted) {
-                        backgroundMusic.play();
-                    }
+                } else if (!backgroundMusic.muted) {
+                    backgroundMusic.play();
                 }
             }
-            // Show info modal
-            function showInfoModal() {
-                gameState.isPaused = true;
-                infoModal.classList.remove('hidden');
-            }
-            // Hide info modal
-            function hideInfoModal() {
-                infoModal.classList.add('hidden');
-                if (gameState.isPlaying) {
-                    gameState.isPaused = false;
-                }
-            }
-            // Game over
+
+            function showInfoModal() { gameState.isPaused = true; infoModal.classList.remove('hidden'); }
+            function hideInfoModal() { infoModal.classList.add('hidden'); if (gameState.isPlaying) gameState.isPaused = false; }
+            
             function gameOver() {
                 gameState.isPlaying = false;
                 gameState.isPaused = true;
-                if (gameState.gameLoop) clearInterval(gameState.gameLoop);
-                if (gameState.timerInterval) clearInterval(gameState.timerInterval);
-                if (gameState.pathogenSpawnInterval) clearInterval(gameState.pathogenSpawnInterval);
-                if (gameState.waveTimeout) clearTimeout(gameState.waveTimeout);
-                // Calculate final time
+                clearInterval(gameState.gameLoop);
+                clearInterval(gameState.timerInterval);
+                clearInterval(gameState.pathogenSpawnInterval);
+                clearTimeout(gameState.waveTimeout);
+                
                 const totalTime = Math.floor((Date.now() - gameState.startTime) / 1000);
                 const finalScore = gameState.totalScore + gameState.levelScore;
-                // Update game over modal
                 document.getElementById('final-pathogens-defeated').textContent = gameState.pathogensDefeated;
                 document.getElementById('final-level').textContent = gameState.level;
                 document.getElementById('final-waves').textContent = gameState.wave - 1;
                 document.getElementById('final-score').textContent = finalScore;
-                document.getElementById('final-time').textContent = totalTime + 's';
-
+                document.getElementById('final-time').textContent = `${totalTime}s`;
                 document.getElementById('score-submission-form').classList.remove('hidden');
                 document.getElementById('game-over-buttons').classList.add('hidden');
                 document.getElementById('submission-status').textContent = '';
-
-                // Play sound
+                
                 sounds.gameOver();
                 backgroundMusic.pause();
-                // Show game over modal
                 gameOverModal.classList.remove('hidden');
             }
 
-            // --- Google Sheets Score Submission ---
             function submitScore() {
                 const playerName = document.getElementById('player-name-input').value.trim();
                 const finalScore = gameState.totalScore + gameState.levelScore;
                 const statusElement = document.getElementById('submission-status');
-
-                if (!playerName) {
-                    alert('Please enter your name.');
-                    return;
-                }
-
+                if (!playerName) { alert('Please enter your name.'); return; }
                 statusElement.textContent = translations[currentLanguage].submissionStatus.submitting;
-
-                // --- IMPORTANT ---
-                // Replace this URL with your own Google Apps Script Web App URL.
                 const googleWebAppUrl = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
-
                 if (googleWebAppUrl === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-                    console.error("Google Apps Script URL is not set. Cannot submit score.");
+                    console.error("Google Apps Script URL is not set.");
                     statusElement.textContent = "Submission endpoint not configured.";
                     document.getElementById('score-submission-form').classList.add('hidden');
                     document.getElementById('game-over-buttons').classList.remove('hidden');
                     return;
                 }
-                
-                // Instructions for setting up Google App Script:
-                // 1. Go to script.google.com and create a new project.
-                // 2. Paste the following code into the script editor, replacing any existing code.
-                /*
-                function doPost(e) {
-                  try {
-                    var sheet = SpreadsheetApp.openById("YOUR_SPREADSHEET_ID").getSheetByName("Scores"); // Replace with your Spreadsheet ID and Sheet Name
-                    
-                    var data = JSON.parse(e.postData.contents);
-                    var name = data.name;
-                    var score = data.score;
-                    var timestamp = new Date();
-                    
-                    sheet.appendRow([timestamp, name, score]);
-                    
-                    return ContentService.createTextOutput(JSON.stringify({ "status": "success" })).setMimeType(ContentService.MimeType.JSON);
-                  } catch (error) {
-                    return ContentService.createTextOutput(JSON.stringify({ "status": "error", "message": error.message })).setMimeType(ContentService.MimeType.JSON);
-                  }
-                }
-                */
-                // 3. Create a Google Sheet. Get its ID from the URL (the long string of characters). Add a sheet named "Scores".
-                // 4. In the Apps Script, replace "YOUR_SPREADSHEET_ID" with your actual Sheet ID.
-                // 5. In the Apps Script editor, click "Deploy" > "New deployment".
-                // 6. Select Type "Web app".
-                // 7. For "Who has access", select "Anyone".
-                // 8. Click "Deploy". Authorize the permissions.
-                // 9. Copy the "Web app URL" and paste it into the `googleWebAppUrl` variable above.
-
-                fetch(googleWebAppUrl, {
-                    method: 'POST',
-                    mode: 'no-cors', // Important for simple web app deployments
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ name: playerName, score: finalScore }),
-                })
-                .then(response => {
+                fetch(googleWebAppUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: playerName, score: finalScore })})
+                .then(() => {
                     statusElement.textContent = translations[currentLanguage].submissionStatus.success;
                     document.getElementById('score-submission-form').classList.add('hidden');
                     document.getElementById('game-over-buttons').classList.remove('hidden');
-                })
-                .catch(error => {
+                }).catch(error => {
                     console.error('Error:', error);
                     statusElement.textContent = translations[currentLanguage].submissionStatus.error;
                     document.getElementById('score-submission-form').classList.add('hidden');
@@ -2045,91 +1671,68 @@
                 });
             }
 
-            // Level complete
             function levelComplete() {
                 gameState.isPlaying = false;
                 gameState.isPaused = true;
-                if (gameState.gameLoop) clearInterval(gameState.gameLoop);
-                if (gameState.timerInterval) clearInterval(gameState.timerInterval);
-                if (gameState.pathogenSpawnInterval) clearInterval(gameState.pathogenSpawnInterval);
-                if (gameState.waveTimeout) clearTimeout(gameState.waveTimeout);
-                // Calculate level time
+                clearInterval(gameState.gameLoop);
+                clearInterval(gameState.timerInterval);
+                clearInterval(gameState.pathogenSpawnInterval);
+                clearTimeout(gameState.waveTimeout);
+
                 const levelTime = Math.floor((Date.now() - gameState.levelStartTime) / 1000);
-                // Update level complete modal
-                document.getElementById('summary-pathogens-defeated').textContent = gameState.pathogensDefeated;
-                document.getElementById('summary-health').textContent = Math.floor(gameState.health) + '%';
-                // Calculate efficiency (resources spent vs pathogens defeated)
-                const totalCost = gameState.defenders.reduce((total, d) => total + cellTypes[d.type].cost, 0) || 1; // || 1 to avoid division by zero
+                const totalCost = gameState.defenders.reduce((total, d) => total + cellTypes[d.type].cost, 0) || 1;
                 const efficiency = Math.min(100, Math.floor((gameState.pathogensDefeated * 10) / totalCost * 100));
-                document.getElementById('summary-efficiency').textContent = efficiency + '%';
+                
+                document.getElementById('summary-pathogens-defeated').textContent = gameState.pathogensDefeated;
+                document.getElementById('summary-health').textContent = `${Math.floor(gameState.health)}%`;
+                document.getElementById('summary-efficiency').textContent = `${efficiency}%`;
                 document.getElementById('summary-score').textContent = gameState.levelScore;
-                document.getElementById('summary-time').textContent = levelTime + 's';
+                document.getElementById('summary-time').textContent = `${levelTime}s`;
                 
-                // Add level score to total score
                 gameState.totalScore += gameState.levelScore;
-                
-                // Set random immune fact
-                document.getElementById('immune-fact').textContent = 
-                    immuneFacts[Math.floor(Math.random() * immuneFacts.length)];
-                // Show level complete modal
+                document.getElementById('immune-fact').textContent = immuneFacts[Math.floor(Math.random() * immuneFacts.length)];
                 levelCompleteModal.classList.remove('hidden');
-                // Enable/disable next level button
-                if (gameState.level < Object.keys(levels).length) {
-                    document.getElementById('next-level').disabled = false;
-                    document.getElementById('next-level').classList.remove('opacity-50');
-                } else {
-                    document.getElementById('next-level').disabled = true;
-                    document.getElementById('next-level').classList.add('opacity-50');
-                }
-                // Play sound
+                
+                const nextLevelButton = document.getElementById('next-level');
+                const isLastLevel = gameState.level >= Object.keys(levels).length;
+                nextLevelButton.disabled = isLastLevel;
+                nextLevelButton.classList.toggle('opacity-50', isLastLevel);
+                
                 sounds.levelComplete();
             }
-            // Next level
+
             function nextLevel() {
                 gameState.level++;
                 levelCompleteModal.classList.add('hidden');
-                // Clear game board
-                while (gameBoard.firstChild) {
-                    gameBoard.removeChild(gameBoard.firstChild);
-                }
-                // Update level info
+                while (gameBoard.firstChild) gameBoard.removeChild(gameBoard.firstChild);
                 const currentLevel = levels[gameState.level];
                 document.querySelector('#level-info p:first-child').textContent = currentLevel.name;
                 document.querySelector('#level-info p:nth-child(2)').textContent = currentLevel.description;
                 startGame();
             }
-            // Restart level
+
             function restartLevel() {
                 pauseModal.classList.add('hidden');
                 gameOverModal.classList.add('hidden');
                 levelCompleteModal.classList.add('hidden');
-                // Clear game board
-                while (gameBoard.firstChild) {
-                    gameBoard.removeChild(gameBoard.firstChild);
-                }
+                while (gameBoard.firstChild) gameBoard.removeChild(gameBoard.firstChild);
                 startGame();
             }
-            // Back to menu
+
             function backToMenu() {
                 gameOverModal.classList.add('hidden');
                 startModal.style.display = 'flex';
-                // Clear game board
-                while (gameBoard.firstChild) {
-                    gameBoard.removeChild(gameBoard.firstChild);
-                }
+                while (gameBoard.firstChild) gameBoard.removeChild(gameBoard.firstChild);
                 gameState.isPlaying = false;
             }
-            // Show tooltip
+
             function showTooltip(event, text) {
                 tooltip.textContent = text;
-                tooltip.style.left = (event.pageX + 10) + 'px';
-                tooltip.style.top = (event.pageY + 10) + 'px';
+                tooltip.style.left = `${event.pageX + 10}px`;
+                tooltip.style.top = `${event.pageY + 10}px`;
                 tooltip.style.opacity = '1';
             }
-            // Hide tooltip
-            function hideTooltip() {
-                tooltip.style.opacity = '0';
-            }
+            function hideTooltip() { tooltip.style.opacity = '0'; }
 
             function toggleMute() {
                 backgroundMusic.muted = !backgroundMusic.muted;
@@ -2137,9 +1740,7 @@
                 mutedIcon.classList.toggle('hidden', !backgroundMusic.muted);
             }
 
-            // Initialize the game
             initGame();
-            // Set initial language to Thai
             switchLanguage('th');
         });
     </script>
