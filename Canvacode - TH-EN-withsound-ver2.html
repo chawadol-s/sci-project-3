@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cellular Defenders: The Immune System Battle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Import Prompt Font */
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+
+        body {
+            /* Apply Prompt Font */
+            font-family: 'Prompt', sans-serif;
+            background-color: #f0f4ff;
+            overflow-x: hidden;
+        }
+        .game-container {
+            background: linear-gradient(to bottom, #d4e1ff, #f0f4ff);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 100, 0.1);
+        }
+        .cell-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .cell-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 100, 0.15);
+        }
+        .pathogen {
+            position: absolute;
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+        .defender {
+            position: absolute;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        .projectile {
+            position: absolute;
+            border-radius: 50%;
+            z-index: 5;
+        }
+        .game-board {
+            background-image: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(220,230,255,0.4) 70%);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4c6fff 0%, #3a56e8 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 105, 255, 0.4);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #ff6b6b 0%, #e84a4a 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        .info-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 100, 0.1);
+        }
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        .modal {
+            background-color: rgba(0, 0, 0, 0.7);
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            background: linear-gradient(to bottom, #ffffff, #f5f8ff);
+            border-radius: 16px;
+            box-shadow: 0 15px 30px rgba(0, 0, 100, 0.2);
+        }
+        .tab {
+            transition: all 0.3s ease;
+        }
+        .tab.active {
+            background-color: #4c6fff;
+            color: white;
+        }
+        .tab:hover:not(.active) {
+            background-color: #e0e7ff;
+        }
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .lang-btn {
+            background-color: #e0e7ff;
+            color: #4c6fff;
+            border: 1px solid #4c6fff;
+        }
+        .lang-btn.active {
+            background-color: #4c6fff;
+            color: white;
+        }
+        .level-btn.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .level-btn.locked:hover {
+             background-color: #f3f4f6;
+        }
+        /* Simple shake animation for insufficient resources */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .animate-shake {
+            animation: shake 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <audio id="background-music" src="https://vgmsite.com/soundtracks/sick-beats-for-sick-kids-a-charity-album/pftvowim/11.%20Pjush%20-%20Bio-Mechanics.mp3" loop></audio>
+    <div id="game-wrapper" class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Game Header -->
+        <header class="text-center mb-6">
+            <div class="flex justify-between items-center mb-4">
+                 <div class="flex items-center space-x-2">
+                    <button id="mute-btn" class="p-2 rounded-full bg-blue-100 hover:bg-blue-200">
+                        <svg id="unmuted-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                          </svg>
+                        <svg id="muted-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                          </svg>
+                    </button>
+                 </div>
+                <div>
+                    <h1 id="game-title" class="text-4xl font-bold text-blue-800 mb-2">Cellular Defenders</h1>
+                    <p id="game-subtitle" class="text-xl text-blue-600">The Immune System Battle</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button id="lang-en" class="lang-btn px-3 py-1 rounded-lg font-semibold text-sm active">EN</button>
+                    <button id="lang-th" class="lang-btn px-3 py-1 rounded-lg font-semibold text-sm">TH</button>
+                </div>
+            </div>
+        </header>
+        <!-- Main Game Container -->
+        <div class="game-container p-6">
+            <!-- Game Controls -->
+            <div class="flex flex-wrap justify-between items-center mb-6">
+                <div class="flex items-center space-x-4 flex-wrap">
+                    <div class="bg-white p-3 rounded-lg shadow-md">
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="ml-2 font-bold text-lg" id="resources">100</span>
+                        </div>
+                        <p id="energy-label" class="text-xs text-gray-500 mt-1">Energy Points</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg shadow-md">
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            <span class="ml-2 font-bold text-lg" id="health">100</span>
+                        </div>
+                        <p id="health-label" class="text-xs text-gray-500 mt-1">Body Health</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg shadow-md">
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="ml-2 font-bold text-lg" id="total-score-display">0</span>
+                        </div>
+                        <p id="total-score-label-top" class="text-xs text-gray-500 mt-1">Total Score</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg shadow-md">
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="ml-2 font-bold text-lg" id="timer-display">00:00</span>
+                        </div>
+                        <p id="timer-label" class="text-xs text-gray-500 mt-1">Time</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg shadow-md">
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            <span class="ml-2 font-bold text-lg" id="level">1</span>
+                        </div>
+                        <p id="level-label" class="text-xs text-gray-500 mt-1">Current Level</p>
+                    </div>
+                </div>
+                <div class="flex space-x-3 mt-4 sm:mt-0">
+                    <button id="pause-btn" class="btn-primary px-4 py-2 text-white rounded-lg font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span id="pause-btn-text">Pause</span>
+                    </button>
+                    <button id="info-btn" class="btn-primary px-4 py-2 text-white rounded-lg font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span id="info-btn-text">Info</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Game Area -->
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- Left Panel - Immune Cell Selection -->
+                <div class="lg:w-1/4">
+                    <div class="bg-white p-4 rounded-lg shadow-md mb-4">
+                        <h3 id="immune-cells-title" class="text-lg font-bold text-blue-800 mb-3">Immune Cells</h3>
+                        <div class="space-y-3" id="cell-selection">
+                            <!-- Neutrophil -->
+                            <div class="cell-card bg-blue-50 p-3 rounded-lg border border-blue-200" data-cell="neutrophil" data-cost="10">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                            <svg viewBox="0 0 24 24" class="w-6 h-6 text-blue-600" fill="currentColor">
+                                                <path d="M12,2C6.47,2,2,6.47,2,12s4.47,10,10,10s10-4.47,10-10S17.53,2,12,2z M12,20c-4.41,0-8-3.59-8-8s3.59-8,8-8s8,3.59,8,8 S16.41,20,12,20z M14.59,8L12,10.59L9.41,8L8,9.41L10.59,12L8,14.59L9.41,16L12,13.41L14.59,16L16,14.59L13.41,12L16,9.41 L14.59,8z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h4 id="neutrophil-name" class="font-semibold text-blue-800">Neutrophil</h4>
+                                            <p id="neutrophil-desc" class="text-xs text-gray-600">Fast first responder</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-yellow-600 font-bold">10</span>
+                                </div>
+                            </div>
+                            <!-- Macrophage -->
+                            <div class="cell-card bg-purple-50 p-3 rounded-lg border border-purple-200" data-cell="macrophage" data-cost="20">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                                            <svg viewBox="0 0 24 24" class="w-6 h-6 text-purple-600" fill="currentColor">
+                                                <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.42,0-8-3.58-8-8s3.58-8,8-8s8,3.58,8,8 S16.42,20,12,20z M15.5,11c0.83,0,1.5-0.67,1.5-1.5S16.33,8,15.5,8S14,8.67,14,9.5S14.67,11,15.5,11z M8.5,11 c0.83,0,1.5-0.67,1.5-1.5S9.33,8,8.5,8S7,8.67,7,9.5S7.67,11,8.5,11z M12,17.5c2.33,0,4.31-1.46,5.11-3.5H6.89 C7.69,16.04,9.67,17.5,12,17.5z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h4 id="macrophage-name" class="font-semibold text-purple-800">Macrophage</h4>
+                                            <p id="macrophage-desc" class="text-xs text-gray-600">Powerful phagocyte</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-yellow-600 font-bold">20</span>
+                                </div>
+                            </div>
+                            <!-- T-Cell -->
+                            <div class="cell-card bg-green-50 p-3 rounded-lg border border-green-200" data-cell="tcell" data-cost="30">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                            <svg viewBox="0 0 24 24" class="w-6 h-6 text-green-600" fill="currentColor">
+                                                <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8 s8,3.59,8,8C20,16.41,16.41,20,12,20z M14,10h-4v2h4v2h-4v2h4v-2h2v-2h-2V10z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h4 id="tcell-name" class="font-semibold text-green-800">T-Cell</h4>
+                                            <p id="tcell-desc" class="text-xs text-gray-600">Targets specific threats</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-yellow-600 font-bold">30</span>
+                                </div>
+                            </div>
+                            <!-- B-Cell -->
+                            <div class="cell-card bg-red-50 p-3 rounded-lg border border-red-200" data-cell="bcell" data-cost="40">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                                            <svg viewBox="0 0 24 24" class="w-6 h-6 text-red-600" fill="currentColor">
+                                                <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8 s8,3.59,8,8C20,16.41,16.41,20,12,20z M13.88,11.54l-4.96,4.96l-1.41-1.41l4.96-4.96L10.34,8l5.65,0.01L16,13.66L13.88,11.54z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h4 id="bcell-name" class="font-semibold text-red-800">B-Cell</h4>
+                                            <p id="bcell-desc" class="text-xs text-gray-600">Creates antibodies</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-yellow-600 font-bold">40</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Current Level Info -->
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h3 id="current-level-title" class="text-lg font-bold text-blue-800 mb-2">Current Level</h3>
+                        <div id="level-info" class="text-sm">
+                            <p id="level-name" class="font-semibold text-blue-700 mb-1">Bloodstream</p>
+                            <p id="level-desc" class="text-gray-600 mb-2">Defend against invading bacteria in the bloodstream.</p>
+                            <div class="mb-2">
+                                <span id="progress-label" class="text-xs font-semibold text-gray-500">PROGRESS</span>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-500">
+                                <span id="pathogens-label">Pathogens: <span id="pathogens-defeated">0</span>/<span id="pathogens-total">20</span></span>
+                                <span id="wave-label">Wave: <span id="current-wave">1</span>/<span id="total-waves">3</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Game Board -->
+                <div class="lg:w-2/4">
+                    <div id="game-board" class="game-board w-full h-[500px] border-4 border-blue-300 relative">
+                        <!-- Game elements will be added here dynamically -->
+                    </div>
+                </div>
+                <!-- Right Panel - Information -->
+                <div class="lg:w-1/4">
+                    <div class="info-panel p-4 mb-4">
+                        <h3 id="pathogen-info-title" class="text-lg font-bold text-blue-800 mb-3">Pathogen Info</h3>
+                        <div id="pathogen-info" class="text-sm">
+                            <div class="flex items-center mb-3">
+                                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                    <svg viewBox="0 0 24 24" class="w-6 h-6 text-red-600" fill="currentColor">
+                                        <path d="M12,2C6.47,2,2,6.47,2,12c0,5.53,4.47,10,10,10s10-4.47,10-10C22,6.47,17.53,2,12,2z M12,20c-4.42,0-8-3.58-8-8 c0-4.42,3.58-8,8-8s8,3.58,8,8C20,16.42,16.42,20,12,20z M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41 L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 id="bacteria-name" class="font-semibold text-red-800">Bacteria</h4>
+                                    <p id="bacteria-desc" class="text-xs text-gray-600">Single-celled microorganisms</p>
+                                </div>
+                            </div>
+                            <p id="bacteria-detail" class="text-gray-700 mb-3">Bacteria are single-celled microorganisms that can multiply rapidly. Some cause infections while others are beneficial.</p>
+                            <div class="flex justify-between text-sm">
+                                <span id="health-stat" class="text-gray-600">Health: <span id="health-value" class="font-semibold">Medium</span></span>
+                                <span id="speed-stat" class="text-gray-600">Speed: <span id="speed-value" class="font-semibold">Medium</span></span>
+                                <span id="damage-stat" class="text-gray-600">Damage: <span id="damage-value" class="font-semibold">Low</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-panel p-4">
+                        <h3 id="game-tips-title" class="text-lg font-bold text-blue-800 mb-3">Game Tips</h3>
+                        <ul id="game-tips" class="text-sm space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span id="tip1">Click on an immune cell and then click on the game board to place it.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span id="tip2">Different immune cells are effective against different pathogens.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span id="tip3">Energy points regenerate slowly over time. Use them wisely!</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span id="tip4">Don't let pathogens reach the right side of the screen!</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Start Game Modal -->
+    <div id="start-modal" class="modal fixed inset-0 flex items-center justify-center z-50">
+        <div class="modal-content w-11/12 max-w-2xl p-6 mx-auto">
+            <h2 id="modal-title" class="text-3xl font-bold text-blue-800 mb-4">Cellular Defenders</h2>
+            <p id="modal-subtitle" class="text-lg text-gray-700 mb-6">Welcome to the microscopic world of your immune system! Defend your body against invading pathogens by strategically deploying immune cells.</p>
+            <div class="mb-6">
+                <h3 id="how-to-play-title" class="text-xl font-semibold text-blue-700 mb-3">How to Play:</h3>
+                <ul id="how-to-play-list" class="space-y-2 text-gray-700">
+                    <li class="flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span id="how1">Select immune cells from the left panel and place them on the game board.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span id="how2">Each immune cell costs energy points to deploy.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span id="how3">Prevent pathogens from reaching the right side of the screen.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span id="how4">Complete all waves to advance to the next level.</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="mb-6">
+                <h3 id="choose-level-title" class="text-xl font-semibold text-blue-700 mb-3">Choose Your Level:</h3>
+                <div class="grid grid-cols-2 gap-4" id="level-grid">
+                    <button class="level-btn bg-blue-100 hover:bg-blue-200 p-4 rounded-lg text-left transition-all" data-level="1">
+                        <h4 id="level1-name" class="font-bold text-blue-800">Level 1: Bloodstream</h4>
+                        <p id="level1-desc" class="text-sm text-gray-600">Defend against bacteria in the bloodstream.</p>
+                    </button>
+                    <button class="level-btn bg-gray-100 hover:bg-gray-200 p-4 rounded-lg text-left transition-all" data-level="2">
+                        <h4 id="level2-name" class="font-bold text-gray-800">Level 2: Lungs</h4>
+                        <p id="level2-desc" class="text-sm text-gray-600">Combat viruses in the respiratory system.</p>
+                    </button>
+                    <button class="level-btn bg-gray-100 hover:bg-gray-200 p-4 rounded-lg text-left transition-all" data-level="3">
+                        <h4 id="level3-name" class="font-bold text-gray-800">Level 3: Intestines</h4>
+                        <p id="level3-desc" class="text-sm text-gray-600">Fight parasites in the digestive tract.</p>
+                    </button>
+                    <button class="level-btn bg-gray-100 hover:bg-gray-200 p-4 rounded-lg text-left transition-all" data-level="4">
+                        <h4 id="level4-name" class="font-bold text-gray-800">Level 4: Skin</h4>
+                        <p id="level4-desc" class="text-sm text-gray-600">Defend against fungi on the skin surface.</p>
+                    </button>
+                </div>
+            </div>
+            <div class="flex justify-center">
+                <button id="start-game" class="btn-primary px-8 py-3 text-white rounded-lg font-bold text-lg">
+                    <span id="start-game-text">Start Game</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Pause Modal -->
+    <div id="pause-modal" class="modal fixed inset-0 flex items-center justify-center z-50 hidden">
+        <div class="modal-content w-11/12 max-w-md p-6 mx-auto">
+            <h2 id="pause-modal-title" class="text-2xl font-bold text-blue-800 mb-4">Game Paused</h2>
+            <p id="pause-modal-text" class="text-gray-700 mb-6">Take a moment to strategize your next moves!</p>
+            <div class="flex justify-between">
+                <button id="resume-game" class="btn-primary px-6 py-2 text-white rounded-lg font-semibold">
+                    <span id="resume-game-text">Resume Game</span>
+                </button>
+                <button id="restart-game" class="btn-secondary px-6 py-2 text-white rounded-lg font-semibold">
+                    <span id="restart-game-text">Restart Level</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Info Modal -->
+    <div id="info-modal" class="modal fixed inset-0 flex items-center justify-center z-50 hidden">
+        <div class="modal-content w-11/12 max-w-3xl p-6 mx-auto max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="info-modal-title" class="text-2xl font-bold text-blue-800">Immune System Information</h2>
+                <button id="close-info" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="mb-4">
+                <div class="flex space-x-2 mb-4 border-b">
+                    <button class="tab active py-2 px-4 rounded-t-lg" data-tab="immune-cells"><span id="tab-immune-cells">Immune Cells</span></button>
+                    <button class="tab py-2 px-4 rounded-t-lg" data-tab="pathogens"><span id="tab-pathogens">Pathogens</span></button>
+                    <button class="tab py-2 px-4 rounded-t-lg" data-tab="immunity"><span id="tab-immunity">Immunity Types</span></button>
+                </div>
+                <div id="tab-content">
+                    <!-- Immune Cells Tab -->
+                    <div id="immune-cells-content" class="tab-content">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                        <svg viewBox="0 0 24 24" class="w-6 h-6 text-blue-600" fill="currentColor">
+                                            <path d="M12,2C6.47,2,2,6.47,2,12s4.47,10,10,10s10-4.47,10-10S17.53,2,12,2z M12,20c-4.41,0-8-3.59-8-8s3.59-8,8-8s8,3.59,8,8 S16.41,20,12,20z M14.59,8L12,10.59L9.41,8L8,9.41L10.59,12L8,14.59L9.41,16L12,13.41L14.59,16L16,14.59L13.41,12L16,9.41 L14.59,8z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 id="neutrophil-info-name" class="font-bold text-blue-800">Neutrophils</h3>
+                                </div>
+                                <p id="neutrophil-info-desc" class="text-sm text-gray-700">Fast-acting first responders that quickly attack invading pathogens. They're especially effective against bacteria and use phagocytosis to engulf and destroy them.</p>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                                        <svg viewBox="0 0 24 24" class="w-6 h-6 text-purple-600" fill="currentColor">
+                                            <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.42,0-8-3.58-8-8s3.58-8,8-8s8,3.58,8,8 S16.42,20,12,20z M15.5,11c0.83,0,1.5-0.67,1.5-1.5S16.33,8,15.5,8S14,8.67,14,9.5S14.67,11,15.5,11z M8.5,11 c0.83,0,1.5-0.67,1.5-1.5S9.33,8,8.5,8S7,8.67,7,9.5S7.67,11,8.5,11z M12,17.5c2.33,0,4.31-1.46,5.11-3.5H6.89 C7.69,16.04,9.67,17.5,12,17.5z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 id="macrophage-info-name" class="font-bold text-purple-800">Macrophages</h3>
+                                </div>
+                                <p id="macrophage-info-desc" class="text-sm text-gray-700">Large phagocytes that can engulf multiple pathogens. They also present antigens to T-cells, helping activate the adaptive immune response.</p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                        <svg viewBox="0 0 24 24" class="w-6 h-6 text-green-600" fill="currentColor">
+                                            <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8 s8,3.59,8,8C20,16.41,16.41,20,12,20z M14,10h-4v2h4v2h-4v2h4v-2h2v-2h-2V10z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 id="tcell-info-name" class="font-bold text-green-800">T-Cells</h3>
+                                </div>
+                                <p id="tcell-info-desc" class="text-sm text-gray-700">Part of the adaptive immune system, T-cells target specific threats. They can directly kill infected cells and help coordinate the immune response.</p>
+                            </div>
+                            <div class="bg-red-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                        <svg viewBox="0 0 24 24" class="w-6 h-6 text-red-600" fill="currentColor">
+                                            <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8 s8,3.59,8,8C20,16.41,16.41,20,12,20z M13.88,11.54l-4.96,4.96l-1.41-1.41l4.96-4.96L10.34,8l5.65,0.01L16,13.66L13.88,11.54z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 id="bcell-info-name" class="font-bold text-red-800">B-Cells</h3>
+                                </div>
+                                <p id="bcell-info-desc" class="text-sm text-gray-700">B-cells produce antibodies that tag pathogens for destruction. They're crucial for fighting bacterial infections and can develop memory to respond faster to future infections.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pathogens Tab -->
+                    <div id="pathogens-content" class="tab-content hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-red-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                        <svg viewBox="0 0 24 24" class="w-6 h-6 text-red-600" fill="currentColor">
+                                            <path d="M12,2C6.47,2,2,6.47,2,12c0,5.53,4.47,10,10,10s10-4.47,10-10C22,6.47,17.53,2,12,2z M12,20c-4.42,0-8-3.58-8-8 c0-4.42,3.58-8,8-8s8,3.58,8,8C20,16.42,16.42,20,12,20z M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41 L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 id="bacteria-info-name" class="font-bold text-red-800">Bacteria</h3>
+                                </div>
+                                <p id="bacteria-info-desc" class="text-sm text-gray-700">Single-celled microorganisms that can multiply rapidly. Some cause infections by releasing toxins or invading tissues. Antibiotics can kill bacteria but not viruses.</p>
+                            </div>
+                            <div class="bg-yellow-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                                        <svg viewBox="0 0 24 24" class="w-6 h-6 text-yellow-600" fill="currentColor">
+                                            <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8 s8,3.59,8,8C20,16.41,16.41,20,12,20z M12,12c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,12,12,12z M12,16c-1.1,0-2-0.9-2-2 s0.9-2,2-2s2,0.9,2,2S13.1,16,12,16z M12,8c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,8,12,8z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 id="virus-info-name" class="font-bold text-yellow-800">Viruses</h3>
+                                </div>
+                                <p id="virus-info-desc" class="text-sm text-gray-700">Tiny infectious agents that can only replicate inside host cells. They hijack cellular machinery to produce more viruses, often destroying the host cell in the process.</p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                        <svg viewBox="0 0 24 24" class="w-6 h-6 text-green-600" fill="currentColor">
+                                            <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8 s8,3.59,8,8C20,16.41,16.41,20,12,20z M12,6c-3.31,0-6,2.69-6,6s2.69,6,6,6s6-2.69,6-6S15.31,6,12,6z M12,16c-2.21,0-4-1.79-4-4 s1.79-4,4-4s4,1.79,4,4S14.21,16,12,16z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 id="fungi-info-name" class="font-bold text-green-800">Fungi</h3>
+                                </div>
+                                <p id="fungi-info-desc" class="text-sm text-gray-700">Eukaryotic organisms that include yeasts and molds. Some fungi can cause infections, especially in people with weakened immune systems.</p>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                                        <svg viewBox="0 0 24 24" class="w-6 h-6 text-purple-600" fill="currentColor">
+                                            <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8 s8,3.59,8,8C20,16.41,16.41,20,12,20z M16.01,7.46l-8.55,8.55l1.41,1.41l8.55-8.55L16.01,7.46z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 id="parasite-info-name" class="font-bold text-purple-800">Parasites</h3>
+                                </div>
+                                <p id="parasite-info-desc" class="text-sm text-gray-700">Organisms that live on or in a host and get their food from or at the expense of the host. They include protozoa, helminths (worms), and ectoparasites like ticks.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Immunity Types Tab -->
+                    <div id="immunity-content" class="tab-content hidden">
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h3 id="innate-name" class="font-bold text-blue-800 mb-2">Innate Immunity</h3>
+                                <p id="innate-desc" class="text-sm text-gray-700">The first line of defense against pathogens. It includes physical barriers like skin and mucous membranes, as well as non-specific immune responses like inflammation. Innate immunity is present from birth and provides immediate but general protection.</p>
+                                <p id="innate-components" class="text-sm text-gray-700 mt-2">Key components: Neutrophils, macrophages, natural killer cells, complement system.</p>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <h3 id="adaptive-name" class="font-bold text-purple-800 mb-2">Adaptive Immunity</h3>
+                                <p id="adaptive-desc" class="text-sm text-gray-700">A highly specific immune response that develops after exposure to pathogens. It creates immunological memory, allowing for faster and stronger responses to subsequent encounters with the same pathogen.</p>
+                                <p id="adaptive-components" class="text-sm text-gray-700 mt-2">Key components: B-cells (humoral immunity), T-cells (cell-mediated immunity), antibodies.</p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <h3 id="vaccination-name" class="font-bold text-green-800 mb-2">Vaccination</h3>
+                                <p id="vaccination-desc" class="text-sm text-gray-700">Vaccines contain weakened or inactive parts of a particular organism that triggers an immune response. This helps the body recognize and fight the pathogen in future encounters without causing the disease.</p>
+                                <p id="vaccination-components" class="text-sm text-gray-700 mt-2">Vaccines stimulate the production of antibodies and memory cells, providing long-term protection against specific diseases.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-center">
+                <button id="back-to-game" class="btn-primary px-6 py-2 text-white rounded-lg font-semibold">
+                    <span id="back-to-game-text">Back to Game</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="modal fixed inset-0 flex items-center justify-center z-50 hidden">
+        <div class="modal-content w-11/12 max-w-md p-6 mx-auto">
+            <h2 id="game-over-title" class="text-2xl font-bold text-red-800 mb-4">Game Over</h2>
+            <p id="game-over-text" class="text-gray-700 mb-6">Your body's defenses have been overwhelmed by pathogens!</p>
+            <div class="bg-red-50 p-4 rounded-lg mb-6">
+                <h3 id="game-stats-title" class="font-semibold text-red-800 mb-2">Game Stats:</h3>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                    <div id="pathogens-defeated-label">Pathogens Defeated:</div>
+                    <div id="final-pathogens-defeated" class="font-semibold">0</div>
+                    <div id="level-reached-label">Level Reached:</div>
+                    <div id="final-level" class="font-semibold">1</div>
+                    <div id="waves-completed-label">Waves Completed:</div>
+                    <div id="final-waves" class="font-semibold">0</div>
+                    <div id="total-score-label">Total Score:</div>
+                    <div id="final-score" class="font-semibold">0</div>
+                    <div id="time-used-label">Time Used:</div>
+                    <div id="final-time" class="font-semibold">0s</div>
+                </div>
+            </div>
+
+            <!-- Score Submission Form -->
+            <div id="score-submission-form" class="mb-4">
+                <p id="submit-score-prompt" class="text-center font-semibold mb-2">Enter your name to save your score!</p>
+                <div class="flex gap-2">
+                    <input type="text" id="player-name-input" placeholder="Your Name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="submit-score-btn" class="btn-primary px-4 py-2 text-white rounded-lg font-semibold">Submit</button>
+                </div>
+                <p id="submission-status" class="text-center text-sm mt-2 text-gray-600"></p>
+            </div>
+
+            <div id="game-over-buttons" class="flex justify-between hidden">
+                <button id="try-again" class="btn-primary px-6 py-2 text-white rounded-lg font-semibold">
+                    <span id="try-again-text">Try Again</span>
+                </button>
+                <button id="back-to-menu" class="btn-secondary px-6 py-2 text-white rounded-lg font-semibold">
+                    <span id="back-to-menu-text">Back to Menu</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Level Complete Modal -->
+    <div id="level-complete-modal" class="modal fixed inset-0 flex items-center justify-center z-50 hidden">
+        <div class="modal-content w-11/12 max-w-md p-6 mx-auto">
+            <h2 id="level-complete-title" class="text-2xl font-bold text-green-800 mb-4">Level Complete!</h2>
+            <p id="level-complete-text" class="text-gray-700 mb-6">Congratulations! You've successfully defended the body against all pathogens in this area.</p>
+            <div class="bg-green-50 p-4 rounded-lg mb-6">
+                <h3 id="level-summary-title" class="font-semibold text-green-800 mb-2">Level Summary:</h3>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                    <div id="pathogens-defeated-summary">Pathogens Defeated:</div>
+                    <div id="summary-pathogens-defeated" class="font-semibold">0</div>
+                    <div id="health-remaining">Health Remaining:</div>
+                    <div id="summary-health" class="font-semibold">0</div>
+                    <div id="energy-efficiency">Energy Efficiency:</div>
+                    <div id="summary-efficiency" class="font-semibold">0%</div>
+                    <div id="level-score-label">Level Score:</div>
+                    <div id="summary-score" class="font-semibold">0</div>
+                    <div id="level-time-label">Time Taken:</div>
+                    <div id="summary-time" class="font-semibold">0s</div>
+                </div>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                <h3 id="did-you-know" class="font-semibold text-blue-800 mb-2">Did You Know?</h3>
+                <p id="immune-fact" class="text-sm text-gray-700">Your immune system contains approximately 1 trillion white blood cells and can remember pathogens it has encountered for decades!</p>
+            </div>
+            <div class="flex justify-between">
+                <button id="next-level" class="btn-primary px-6 py-2 text-white rounded-lg font-semibold">
+                    <span id="next-level-text">Next Level</span>
+                </button>
+                <button id="replay-level" class="btn-secondary px-6 py-2 text-white rounded-lg font-semibold">
+                    <span id="replay-level-text">Replay Level</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Tooltip -->
+    <div id="tooltip" class="tooltip"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Language state
+            let currentLanguage = 'en';
+            
+            // Translation dictionary
+            const translations = {
+                en: {
+                    gameTitle: "Cellular Defenders",
+                    gameSubtitle: "The Immune System Battle",
+                    energyLabel: "Energy Points",
+                    healthLabel: "Body Health",
+                    levelLabel: "Current Level",
+                    totalScoreLabelTop: "Total Score",
+                    timerLabel: "Time",
+                    pauseBtn: "Pause",
+                    infoBtn: "Info",
+                    immuneCellsTitle: "Immune Cells",
+                    neutrophilName: "Neutrophil",
+                    neutrophilDesc: "Fast first responder",
+                    macrophageName: "Macrophage",
+                    macrophageDesc: "Powerful phagocyte",
+                    tcellName: "T-Cell",
+                    tcellDesc: "Targets specific threats",
+                    bcellName: "B-Cell",
+                    bcellDesc: "Creates antibodies",
+                    currentLevelTitle: "Current Level",
+                    levelName: "Bloodstream",
+                    levelDesc: "Defend against invading bacteria in the bloodstream.",
+                    progressLabel: "PROGRESS",
+                    pathogensLabel: "Pathogens: ",
+                    waveLabel: "Wave: ",
+                    pathogenInfoTitle: "Pathogen Info",
+                    bacteriaName: "Bacteria",
+                    bacteriaDesc: "Single-celled microorganisms",
+                    bacteriaDetail: "Bacteria are single-celled microorganisms that can multiply rapidly. Some cause infections while others are beneficial.",
+                    healthStat: "Health: ",
+                    speedStat: "Speed: ",
+                    damageStat: "Damage: ",
+                    healthValue: "Medium",
+                    speedValue: "Medium",
+                    damageValue: "Low",
+                    gameTipsTitle: "Game Tips",
+                    tip1: "Click on an immune cell and then click on the game board to place it.",
+                    tip2: "Different immune cells are effective against different pathogens.",
+                    tip3: "Energy points regenerate slowly over time. Use them wisely!",
+                    tip4: "Don't let pathogens reach the right side of the screen!",
+                    modalTitle: "Cellular Defenders",
+                    modalSubtitle: "Welcome to the microscopic world of your immune system! Defend your body against invading pathogens by strategically deploying immune cells.",
+                    howToPlayTitle: "How to Play:",
+                    how1: "Select immune cells from the left panel and place them on the game board.",
+                    how2: "Each immune cell costs energy points to deploy.",
+                    how3: "Prevent pathogens from reaching the right side of the screen.",
+                    how4: "Complete all waves to advance to the next level.",
+                    chooseLevelTitle: "Choose Your Level:",
+                    level1Name: "Level 1: Bloodstream",
+                    level1Desc: "Defend against bacteria in the bloodstream.",
+                    level2Name: "Level 2: Lungs",
+                    level2Desc: "Combat viruses in the respiratory system.",
+                    level3Name: "Level 3: Intestines",
+                    level3Desc: "Fight parasites in the digestive tract.",
+                    level4Name: "Level 4: Skin",
+                    level4Desc: "Defend against fungi on the skin surface.",
+                    startGameText: "Start Game",
+                    pauseModalTitle: "Game Paused",
+                    pauseModalText: "Take a moment to strategize your next moves!",
+                    resumeGameText: "Resume Game",
+                    restartGameText: "Restart Level",
+                    infoModalTitle: "Immune System Information",
+                    tabImmuneCells: "Immune Cells",
+                    tabPathogens: "Pathogens",
+                    tabImmunity: "Immunity Types",
+                    neutrophilInfoName: "Neutrophils",
+                    neutrophilInfoDesc: "Fast-acting first responders that quickly attack invading pathogens. They're especially effective against bacteria and use phagocytosis to engulf and destroy them.",
+                    macrophageInfoName: "Macrophages",
+                    macrophageInfoDesc: "Large phagocytes that can engulf multiple pathogens. They also present antigens to T-cells, helping activate the adaptive immune response.",
+                    tcellInfoName: "T-Cells",
+                    tcellInfoDesc: "Part of the adaptive immune system, T-cells target specific threats. They can directly kill infected cells and help coordinate the immune response.",
+                    bcellInfoName: "B-Cells",
+                    bcellInfoDesc: "B-cells produce antibodies that tag pathogens for destruction. They're crucial for fighting bacterial infections and can develop memory to respond faster to future infections.",
+                    bacteriaInfoName: "Bacteria",
+                    bacteriaInfoDesc: "Single-celled microorganisms that can multiply rapidly. Some cause infections by releasing toxins or invading tissues. Antibiotics can kill bacteria but not viruses.",
+                    virusInfoName: "Viruses",
+                    virusInfoDesc: "Tiny infectious agents that can only replicate inside host cells. They hijack cellular machinery to produce more viruses, often destroying the host cell in the process.",
+                    fungiInfoName: "Fungi",
+                    fungiInfoDesc: "Eukaryotic organisms that include yeasts and molds. Some fungi can cause infections, especially in people with weakened immune systems.",
+                    parasiteInfoName: "Parasites",
+                    parasiteInfoDesc: "Organisms that live on or in a host and get their food from or at the expense of the host. They include protozoa, helminths (worms), and ectoparasites like ticks.",
+                    innateName: "Innate Immunity",
+                    innateDesc: "The first line of defense against pathogens. It includes physical barriers like skin and mucous membranes, as well as non-specific immune responses like inflammation. Innate immunity is present from birth and provides immediate but general protection.",
+                    innateComponents: "Key components: Neutrophils, macrophages, natural killer cells, complement system.",
+                    adaptiveName: "Adaptive Immunity",
+                    adaptiveDesc: "A highly specific immune response that develops after exposure to pathogens. It creates immunological memory, allowing for faster and stronger responses to subsequent encounters with the same pathogen.",
+                    adaptiveComponents: "Key components: B-cells (humoral immunity), T-cells (cell-mediated immunity), antibodies.",
+                    vaccinationName: "Vaccination",
+                    vaccinationDesc: "Vaccines contain weakened or inactive parts of a particular organism that triggers an immune response. This helps the body recognize and fight the pathogen in future encounters without causing the disease.",
+                    vaccinationComponents: "Vaccines stimulate the production of antibodies and memory cells, providing long-term protection against specific diseases.",
+                    backToGameText: "Back to Game",
+                    gameOverTitle: "Game Over",
+                    gameOverText: "Your body's defenses have been overwhelmed by pathogens!",
+                    submitScorePrompt: "Enter your name to save your score!",
+                    submissionStatus: {
+                        submitting: "Submitting...",
+                        success: "Score submitted successfully!",
+                        error: "Error submitting score. Please try again."
+                    },
+                    gameStatsTitle: "Game Stats:",
+                    pathogensDefeatedLabel: "Pathogens Defeated:",
+                    levelReachedLabel: "Level Reached:",
+                    wavesCompletedLabel: "Waves Completed:",
+                    totalScoreLabel: "Total Score:",
+                    timeUsedLabel: "Time Used:",
+                    tryAgainText: "Try Again",
+                    backToMenuText: "Back to Menu",
+                    levelCompleteTitle: "Level Complete!",
+                    levelCompleteText: "Congratulations! You've successfully defended the body against all pathogens in this area.",
+                    levelSummaryTitle: "Level Summary:",
+                    pathogensDefeatedSummary: "Pathogens Defeated:",
+                    healthRemaining: "Health Remaining:",
+                    energyEfficiency: "Energy Efficiency:",
+                    levelScoreLabel: "Level Score:",
+                    levelTimeLabel: "Time Taken:",
+                    didYouKnow: "Did You Know?",
+                    immuneFact: "Your immune system contains approximately 1 trillion white blood cells and can remember pathogens it has encountered for decades!",
+                    nextLevelText: "Next Level",
+                    replayLevelText: "Replay Level"
+                },
+                th: {
+                    gameTitle: "นักสู้เซลล์",
+                    gameSubtitle: "การต่อสู้ของระบบภูมิคุ้มกัน",
+                    energyLabel: "พลังงาน",
+                    healthLabel: "สุขภาพร่างกาย",
+                    levelLabel: "ระดับปัจจุบัน",
+                    totalScoreLabelTop: "คะแนนรวม",
+                    timerLabel: "เวลา",
+                    pauseBtn: "หยุด",
+                    infoBtn: "ข้อมูล",
+                    immuneCellsTitle: "เซลล์ภูมิคุ้มกัน",
+                    neutrophilName: "นิวโทรฟิล",
+                    neutrophilDesc: "หน่วยจู่โจมเร็ว",
+                    macrophageName: "แมโครฟาจ",
+                    macrophageDesc: "นักกินตัวยง",
+                    tcellName: "ทีเซลล์",
+                    tcellDesc: "มือสังหารเฉพาะจุด",
+                    bcellName: "บีเซลล์",
+                    bcellDesc: "โรงงานแอนติบอดี",
+                    currentLevelTitle: "ด่านปัจจุบัน",
+                    levelName: "กระแสเลือด",
+                    levelDesc: "ป้องกันการบุกรุกของแบคทีเรียในกระแสเลือด",
+                    progressLabel: "ความคืบหน้า",
+                    pathogensLabel: "เชื้อโรค: ",
+                    waveLabel: "ระลอก: ",
+                    pathogenInfoTitle: "ข้อมูลเชื้อโรค",
+                    bacteriaName: "แบคทีเรีย",
+                    bacteriaDesc: "จุลินทรีย์เซลล์เดียว",
+                    bacteriaDetail: "แบคทีเรียเป็นจุลินทรีย์เซลล์เดียวที่ขยายพันธุ์ได้รวดเร็ว บางชนิดก่อโรค แต่บางชนิดก็มีประโยชน์",
+                    healthStat: "พลังชีวิต: ",
+                    speedStat: "ความเร็ว: ",
+                    damageStat: "ความเสียหาย: ",
+                    healthValue: "ปานกลาง",
+                    speedValue: "ปานกลาง",
+                    damageValue: "ต่ำ",
+                    gameTipsTitle: "เคล็ดลับ",
+                    tip1: "คลิกเซลล์ที่ต้องการ แล้วคลิกบนกระดานเพื่อวาง",
+                    tip2: "เซลล์แต่ละชนิดมีความสามารถต่อกรกับเชื้อโรคต่างกัน",
+                    tip3: "แต้มพลังงานจะฟื้นฟูอย่างช้าๆ ใช้ให้คุ้มค่า!",
+                    tip4: "อย่าให้เชื้อโรคหลุดไปถึงฝั่งขวาของจอได้!",
+                    modalTitle: "นักสู้เซลล์",
+                    modalSubtitle: "ยินดีต้อนรับสู่โลกจุลภาคของระบบภูมิคุ้มกัน! ปกป้องร่างกายจากการบุกรุกของเชื้อโรคด้วยการวางแผนส่งเซลล์ออกไปต่อสู้อย่างมีกลยุทธ์",
+                    howToPlayTitle: "วิธีเล่น:",
+                    how1: "เลือกเซลล์ภูมิคุ้มกันจากแผงด้านซ้ายแล้วนำไปวางบนกระดานเกม",
+                    how2: "การวางเซลล์แต่ละครั้งต้องใช้แต้มพลังงาน",
+                    how3: "ป้องกันไม่ให้เชื้อโรคไปถึงขอบจอฝั่งขวา",
+                    how4: "เอาชนะเชื้อโรคให้ครบทุกระลอกเพื่อผ่านด่าน",
+                    chooseLevelTitle: "เลือกด่าน:",
+                    level1Name: "ด่าน 1: กระแสเลือด",
+                    level1Desc: "ป้องกันแบคทีเรียในกระแสเลือด",
+                    level2Name: "ด่าน 2: ปอด",
+                    level2Desc: "ต่อสู้กับไวรัสในระบบทางเดินหายใจ",
+                    level3Name: "ด่าน 3: ลำไส้",
+                    level3Desc: "จัดการปรสิตในทางเดินอาหาร",
+                    level4Name: "ด่าน 4: ผิวหนัง",
+                    level4Desc: "ป้องกันเชื้อราบนพื้นผิวหนัง",
+                    startGameText: "เริ่มเกม",
+                    pauseModalTitle: "หยุดเกมชั่วคราว",
+                    pauseModalText: "พักสักครู่เพื่อวางแผนรับมือ!",
+                    resumeGameText: "เล่นต่อ",
+                    restartGameText: "เริ่มด่านใหม่",
+                    infoModalTitle: "ข้อมูลระบบภูมิคุ้มกัน",
+                    tabImmuneCells: "เซลล์ภูมิคุ้มกัน",
+                    tabPathogens: "เชื้อโรค",
+                    tabImmunity: "ประเภทภูมิคุ้มกัน",
+                    neutrophilInfoName: "นิวโทรฟิล",
+                    neutrophilInfoDesc: "หน่วยจู่โจมเร็วที่ตอบสนองต่อผู้บุกรุกได้ไวที่สุด มีประสิทธิภาพสูงในการต่อต้านแบคทีเรียโดยการกินและทำลาย (Phagocytosis)",
+                    macrophageInfoName: "แมโครฟาจ",
+                    macrophageInfoDesc: "เซลล์เม็ดเลือดขาวขนาดใหญ่ที่กินเชื้อโรคได้ทีละมากๆ และยังทำหน้าที่นำเสนอชิ้นส่วนของเชื้อโรค (Antigen) ให้ทีเซลล์เพื่อกระตุ้นระบบภูมิคุ้มกันแบบปรับตัว",
+                    tcellInfoName: "ทีเซลล์",
+                    tcellInfoDesc: "ส่วนหนึ่งของระบบภูมิคุ้มกันแบบปรับตัว ทีเซลล์จะพุ่งเป้าไปยังภัยคุกคามที่เฉพาะเจาะจง สามารถฆ่าเซลล์ที่ติดเชื้อได้โดยตรงและช่วยประสานงานการตอบสนองของภูมิคุ้มกัน",
+                    bcellInfoName: "บีเซลล์",
+                    bcellInfoDesc: "บีเซลล์ผลิตแอนติบอดีซึ่งเปรียบเสมือน 'ป้าย' ที่ไปติดเชื้อโรคให้ถูกทำลายได้ง่ายขึ้น มีบทบาทสำคัญในการต่อสู้กับการติดเชื้อแบคทีเรียและสามารถสร้างเซลล์ความจำเพื่อการตอบสนองที่รวดเร็วกว่าในอนาคต",
+                    bacteriaInfoName: "แบคทีเรีย",
+                    bacteriaInfoDesc: "จุลินทรีย์เซลล์เดียวที่ขยายพันธุ์รวดเร็ว บางชนิดสร้างสารพิษหรือบุกรุกเนื้อเยื่อ ยาปฏิชีวนะใช้ฆ่าแบคทีเรียได้ แต่ใช้กับไวรัสไม่ได้",
+                    virusInfoName: "ไวรัส",
+                    virusInfoDesc: "เชื้อโรคขนาดเล็กที่ไม่สามารถขยายพันธุ์เองได้ ต้องอาศัยการบุกรุกเซลล์เจ้าบ้านและใช้กลไกของเซลล์ในการสร้างไวรัสเพิ่ม ซึ่งมักจะทำลายเซลล์เจ้าบ้านในกระบวนการ",
+                    fungiInfoName: "เชื้อรา",
+                    fungiInfoDesc: "สิ่งมีชีวิตประเภทยูคาริโอตซึ่งรวมถึงยีสต์และรา บางชนิดสามารถก่อโรคได้ โดยเฉพาะในผู้ที่มีภูมิคุ้มกันอ่อนแอ",
+                    parasiteInfoName: "ปรสิต",
+                    parasiteInfoDesc: "สิ่งมีชีวิตที่อาศัยอยู่บนหรือในร่างกายเจ้าบ้านและแย่งชิงสารอาหาร ซึ่งรวมถึงโปรโตซัว, พยาธิ และปรสิตภายนอกเช่นเห็บ",
+                    innateName: "ภูมิคุ้มกันโดยกำเนิด",
+                    innateDesc: "ด่านแรกในการป้องกันเชื้อโรค รวมถึงเกราะป้องกันทางกายภาพเช่นผิวหนังและเยื่อเมือก และการตอบสนองที่ไม่เฉพาะเจาะจงเช่นการอักเสบ เป็นภูมิคุ้มกันที่มีมาแต่เกิดและตอบสนองได้ทันที",
+                    innateComponents: "ส่วนประกอบสำคัญ: นิวโทรฟิล, แมโครฟาจ, เซลล์นักฆ่า (NK cells), ระบบคอมพลีเมนต์",
+                    adaptiveName: "ภูมิคุ้มกันแบบปรับตัว",
+                    adaptiveDesc: "ระบบภูมิคุ้มกันที่มีความเฉพาะเจาะจงสูง ซึ่งจะพัฒนาขึ้นหลังได้รับเชื้อโรค สามารถสร้างความทรงจำทางภูมิคุ้มกัน ทำให้ตอบสนองต่อเชื้อโรคเดิมได้รวดเร็วและรุนแรงขึ้นในครั้งถัดไป",
+                    adaptiveComponents: "ส่วนประกอบสำคัญ: บีเซลล์, ทีเซลล์, แอนติบอดี",
+                    vaccinationName: "การฉีดวัคซีน",
+                    vaccinationDesc: "วัคซีนประกอบด้วยเชื้อโรคที่ถูกทำให้อ่อนแอหรือตายแล้ว หรือเพียงชิ้นส่วนของเชื้อ เพื่อกระตุ้นให้ระบบภูมิคุ้มกันสร้างการป้องกันล่วงหน้าโดยไม่ทำให้เกิดโรคจริง",
+                    vaccinationComponents: "วัคซีนกระตุ้นการสร้างแอนติบอดีและเซลล์ความจำ ทำให้เกิดการป้องกันระยะยาวต่อโรคที่เฉพาะเจาะจง",
+                    backToGameText: "กลับไปที่เกม",
+                    gameOverTitle: "เกมจบแล้ว",
+                    gameOverText: "แนวป้องกันของร่างกายถูกทำลายโดยเชื้อโรค!",
+                    submitScorePrompt: "ใส่ชื่อของคุณเพื่อบันทึกคะแนน!",
+                    submissionStatus: {
+                        submitting: "กำลังส่ง...",
+                        success: "บันทึกคะแนนเรียบร้อย!",
+                        error: "เกิดข้อผิดพลาดในการบันทึกคะแนน"
+                    },
+                    gameStatsTitle: "สถิติ:",
+                    pathogensDefeatedLabel: "เชื้อโรคที่กำจัด:",
+                    levelReachedLabel: "ด่านที่ไปถึง:",
+                    wavesCompletedLabel: "ระลอกที่ผ่าน:",
+                    totalScoreLabel: "คะแนนรวม:",
+                    timeUsedLabel: "เวลาที่ใช้:",
+                    tryAgainText: "ลองอีกครั้ง",
+                    backToMenuText: "กลับไปที่เมนู",
+                    levelCompleteTitle: "ผ่านด่าน!",
+                    levelCompleteText: "ยินดีด้วย! คุณป้องกันร่างกายจากเชื้อโรคทั้งหมดในบริเวณนี้ได้สำเร็จ",
+                    levelSummaryTitle: "สรุปผล:",
+                    pathogensDefeatedSummary: "เชื้อโรคที่กำจัด:",
+                    healthRemaining: "พลังชีวิตที่เหลือ:",
+                    energyEfficiency: "ประสิทธิภาพพลังงาน:",
+                    levelScoreLabel: "คะแนนด่าน:",
+                    levelTimeLabel: "เวลาที่ใช้:",
+                    didYouKnow: "รู้หรือไม่?",
+                    immuneFact: "ระบบภูมิคุ้มกันของคุณมีเซลล์เม็ดเลือดขาวประมาณ 1 ล้านล้านเซลล์ และสามารถจดจำเชื้อโรคที่เคยเจอได้นานหลายสิบปี!",
+                    nextLevelText: "ด่านต่อไป",
+                    replayLevelText: "เล่นซ้ำ"
+                }
+            };
+
+            // Function to switch language
+            function switchLanguage(lang) {
+                currentLanguage = lang;
+                
+                // Update button states
+                document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+                document.getElementById('lang-th').classList.toggle('active', lang === 'th');
+                
+                // Update all text elements
+                document.getElementById('game-title').textContent = translations[lang].gameTitle;
+                document.getElementById('game-subtitle').textContent = translations[lang].gameSubtitle;
+                document.getElementById('energy-label').textContent = translations[lang].energyLabel;
+                document.getElementById('health-label').textContent = translations[lang].healthLabel;
+                document.getElementById('level-label').textContent = translations[lang].levelLabel;
+                document.getElementById('total-score-label-top').textContent = translations[lang].totalScoreLabelTop;
+                document.getElementById('timer-label').textContent = translations[lang].timerLabel;
+                document.getElementById('pause-btn-text').textContent = translations[lang].pauseBtn;
+                document.getElementById('info-btn-text').textContent = translations[lang].infoBtn;
+                document.getElementById('immune-cells-title').textContent = translations[lang].immuneCellsTitle;
+                document.getElementById('neutrophil-name').textContent = translations[lang].neutrophilName;
+                document.getElementById('neutrophil-desc').textContent = translations[lang].neutrophilDesc;
+                document.getElementById('macrophage-name').textContent = translations[lang].macrophageName;
+                document.getElementById('macrophage-desc').textContent = translations[lang].macrophageDesc;
+                document.getElementById('tcell-name').textContent = translations[lang].tcellName;
+                document.getElementById('tcell-desc').textContent = translations[lang].tcellDesc;
+                document.getElementById('bcell-name').textContent = translations[lang].bcellName;
+                document.getElementById('bcell-desc').textContent = translations[lang].bcellDesc;
+                document.getElementById('current-level-title').textContent = translations[lang].currentLevelTitle;
+                document.getElementById('level-name').textContent = translations[lang].levelName;
+                document.getElementById('level-desc').textContent = translations[lang].levelDesc;
+                document.getElementById('progress-label').textContent = translations[lang].progressLabel;
+                document.getElementById('pathogens-label').innerHTML = translations[lang].pathogensLabel + `<span id="pathogens-defeated">0</span>/<span id="pathogens-total">20</span>`;
+                document.getElementById('wave-label').innerHTML = translations[lang].waveLabel + `<span id="current-wave">1</span>/<span id="total-waves">3</span>`;
+                document.getElementById('pathogen-info-title').textContent = translations[lang].pathogenInfoTitle;
+                document.getElementById('bacteria-name').textContent = translations[lang].bacteriaName;
+                document.getElementById('bacteria-desc').textContent = translations[lang].bacteriaDesc;
+                document.getElementById('bacteria-detail').textContent = translations[lang].bacteriaDetail;
+                document.getElementById('health-stat').innerHTML = translations[lang].healthStat + `<span id="health-value" class="font-semibold">${translations[lang].healthValue}</span>`;
+                document.getElementById('speed-stat').innerHTML = translations[lang].speedStat + `<span id="speed-value" class="font-semibold">${translations[lang].speedValue}</span>`;
+                document.getElementById('damage-stat').innerHTML = translations[lang].damageStat + `<span id="damage-value" class="font-semibold">${translations[lang].damageValue}</span>`;
+                document.getElementById('game-tips-title').textContent = translations[lang].gameTipsTitle;
+                document.getElementById('tip1').textContent = translations[lang].tip1;
+                document.getElementById('tip2').textContent = translations[lang].tip2;
+                document.getElementById('tip3').textContent = translations[lang].tip3;
+                document.getElementById('tip4').textContent = translations[lang].tip4;
+                document.getElementById('modal-title').textContent = translations[lang].modalTitle;
+                document.getElementById('modal-subtitle').textContent = translations[lang].modalSubtitle;
+                document.getElementById('how-to-play-title').textContent = translations[lang].howToPlayTitle;
+                document.getElementById('how1').textContent = translations[lang].how1;
+                document.getElementById('how2').textContent = translations[lang].how2;
+                document.getElementById('how3').textContent = translations[lang].how3;
+                document.getElementById('how4').textContent = translations[lang].how4;
+                document.getElementById('choose-level-title').textContent = translations[lang].chooseLevelTitle;
+                document.getElementById('level1-name').textContent = translations[lang].level1Name;
+                document.getElementById('level1-desc').textContent = translations[lang].level1Desc;
+                document.getElementById('level2-name').textContent = translations[lang].level2Name;
+                document.getElementById('level2-desc').textContent = translations[lang].level2Desc;
+                document.getElementById('level3-name').textContent = translations[lang].level3Name;
+                document.getElementById('level3-desc').textContent = translations[lang].level3Desc;
+                document.getElementById('level4-name').textContent = translations[lang].level4Name;
+                document.getElementById('level4-desc').textContent = translations[lang].level4Desc;
+                document.getElementById('start-game-text').textContent = translations[lang].startGameText;
+                document.getElementById('pause-modal-title').textContent = translations[lang].pauseModalTitle;
+                document.getElementById('pause-modal-text').textContent = translations[lang].pauseModalText;
+                document.getElementById('resume-game-text').textContent = translations[lang].resumeGameText;
+                document.getElementById('restart-game-text').textContent = translations[lang].restartGameText;
+                document.getElementById('info-modal-title').textContent = translations[lang].infoModalTitle;
+                document.getElementById('tab-immune-cells').textContent = translations[lang].tabImmuneCells;
+                document.getElementById('tab-pathogens').textContent = translations[lang].tabPathogens;
+                document.getElementById('tab-immunity').textContent = translations[lang].tabImmunity;
+                document.getElementById('neutrophil-info-name').textContent = translations[lang].neutrophilInfoName;
+                document.getElementById('neutrophil-info-desc').textContent = translations[lang].neutrophilInfoDesc;
+                document.getElementById('macrophage-info-name').textContent = translations[lang].macrophageInfoName;
+                document.getElementById('macrophage-info-desc').textContent = translations[lang].macrophageInfoDesc;
+                document.getElementById('tcell-info-name').textContent = translations[lang].tcellInfoName;
+                document.getElementById('tcell-info-desc').textContent = translations[lang].tcellInfoDesc;
+                document.getElementById('bcell-info-name').textContent = translations[lang].bcellInfoName;
+                document.getElementById('bcell-info-desc').textContent = translations[lang].bcellInfoDesc;
+                document.getElementById('bacteria-info-name').textContent = translations[lang].bacteriaInfoName;
+                document.getElementById('bacteria-info-desc').textContent = translations[lang].bacteriaInfoDesc;
+                document.getElementById('virus-info-name').textContent = translations[lang].virusInfoName;
+                document.getElementById('virus-info-desc').textContent = translations[lang].virusInfoDesc;
+                document.getElementById('fungi-info-name').textContent = translations[lang].fungiInfoName;
+                document.getElementById('fungi-info-desc').textContent = translations[lang].fungiInfoDesc;
+                document.getElementById('parasite-info-name').textContent = translations[lang].parasiteInfoName;
+                document.getElementById('parasite-info-desc').textContent = translations[lang].parasiteInfoDesc;
+                document.getElementById('innate-name').textContent = translations[lang].innateName;
+                document.getElementById('innate-desc').textContent = translations[lang].innateDesc;
+                document.getElementById('innate-components').textContent = translations[lang].innateComponents;
+                document.getElementById('adaptive-name').textContent = translations[lang].adaptiveName;
+                document.getElementById('adaptive-desc').textContent = translations[lang].adaptiveDesc;
+                document.getElementById('adaptive-components').textContent = translations[lang].adaptiveComponents;
+                document.getElementById('vaccination-name').textContent = translations[lang].vaccinationName;
+                document.getElementById('vaccination-desc').textContent = translations[lang].vaccinationDesc;
+                document.getElementById('vaccination-components').textContent = translations[lang].vaccinationComponents;
+                document.getElementById('back-to-game-text').textContent = translations[lang].backToGameText;
+                document.getElementById('game-over-title').textContent = translations[lang].gameOverTitle;
+                document.getElementById('game-over-text').textContent = translations[lang].gameOverText;
+                document.getElementById('submit-score-prompt').textContent = translations[lang].submitScorePrompt;
+                document.getElementById('game-stats-title').textContent = translations[lang].gameStatsTitle;
+                document.getElementById('pathogens-defeated-label').textContent = translations[lang].pathogensDefeatedLabel;
+                document.getElementById('level-reached-label').textContent = translations[lang].levelReachedLabel;
+                document.getElementById('waves-completed-label').textContent = translations[lang].wavesCompletedLabel;
+                document.getElementById('total-score-label').textContent = translations[lang].totalScoreLabel;
+                document.getElementById('time-used-label').textContent = translations[lang].timeUsedLabel;
+                document.getElementById('try-again-text').textContent = translations[lang].tryAgainText;
+                document.getElementById('back-to-menu-text').textContent = translations[lang].backToMenuText;
+                document.getElementById('level-complete-title').textContent = translations[lang].levelCompleteTitle;
+                document.getElementById('level-complete-text').textContent = translations[lang].levelCompleteText;
+                document.getElementById('level-summary-title').textContent = translations[lang].levelSummaryTitle;
+                document.getElementById('pathogens-defeated-summary').textContent = translations[lang].pathogensDefeatedSummary;
+                document.getElementById('health-remaining').textContent = translations[lang].healthRemaining;
+                document.getElementById('energy-efficiency').textContent = translations[lang].energyEfficiency;
+                document.getElementById('level-score-label').textContent = translations[lang].levelScoreLabel;
+                document.getElementById('level-time-label').textContent = translations[lang].levelTimeLabel;
+                document.getElementById('did-you-know').textContent = translations[lang].didYouKnow;
+                document.getElementById('immune-fact').textContent = translations[lang].immuneFact;
+                document.getElementById('next-level-text').textContent = translations[lang].nextLevelText;
+                document.getElementById('replay-level-text').textContent = translations[lang].replayLevelText;
+                
+                // Update level buttons
+                const levelButtons = document.querySelectorAll('.level-btn');
+                levelButtons.forEach(btn => {
+                    const level = parseInt(btn.getAttribute('data-level'));
+                    if (level > gameState.level) {
+                        btn.classList.add('locked');
+                    } else {
+                        btn.classList.remove('locked');
+                    }
+                });
+            }
+
+            // --- Sound System ---
+            // Basic Web Audio API setup for simple sound effects
+            let audioContext;
+            let soundEnabled = true;
+
+            function initAudio() {
+                // Check if AudioContext is supported
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (window.AudioContext) {
+                    audioContext = new AudioContext();
+                } else {
+                    console.warn("Web Audio API is not supported in this browser. Sound will be disabled.");
+                    soundEnabled = false;
+                }
+            }
+
+            function playSound(frequency, duration, type = 'sine') {
+                if (!soundEnabled || !audioContext) return;
+
+                try {
+                    // Ensure the audio context is running (browsers require user interaction)
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.type = type;
+                    oscillator.frequency.value = frequency;
+                    gainNode.gain.value = 0.1; // Volume
+
+                    oscillator.start();
+                    // Fade out to prevent clicking
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000);
+                    oscillator.stop(audioContext.currentTime + duration / 1000);
+                } catch (e) {
+                    console.error("Error playing sound:", e);
+                }
+            }
+
+            // Define sound effects
+            const sounds = {
+                placeDefender: () => playSound(300, 200, 'sine'), // Low beep
+                hitPathogen: () => playSound(600, 100, 'square'), // Sharp hit
+                defeatPathogen: () => playSound(800, 300, 'sine'), // Rising tone
+                gameOver: () => playSound(200, 1000, 'sawtooth'), // Low descending tone
+                levelComplete: () => {
+                    // Simple melody for level complete
+                    playSound(523.25, 200, 'sine'); // C5
+                    setTimeout(() => playSound(659.25, 200, 'sine'), 200); // E5
+                    setTimeout(() => playSound(783.99, 400, 'sine'), 400); // G5
+                },
+                insufficientResources: () => playSound(150, 300, 'sawtooth') // Low buzz
+            };
+
+            // --- Game State ---
+            // Game state
+            const gameState = {
+                isPlaying: false,
+                isPaused: false,
+                resources: 100,
+                health: 100,
+                level: 1,
+                wave: 1,
+                totalWaves: 3,
+                pathogensDefeated: 0,
+                pathogensTotal: 20,
+                selectedCell: null,
+                defenders: [],
+                pathogens: [],
+                projectiles: [],
+                lastResourceUpdate: Date.now(),
+                resourceRate: 2, // Energy points per second
+                gameLoop: null,
+                timerInterval: null,
+                pathogenSpawnInterval: null,
+                waveTimeout: null,
+                startTime: null, // For tracking game time
+                levelStartTime: null, // For tracking level time
+                totalScore: 0, // Cumulative score across levels
+                levelScore: 0 // Score for the current level
+            };
+            // DOM elements
+            const gameBoard = document.getElementById('game-board');
+            const resourcesDisplay = document.getElementById('resources');
+            const healthDisplay = document.getElementById('health');
+            const levelDisplay = document.getElementById('level');
+            const totalScoreDisplay = document.getElementById('total-score-display');
+            const timerDisplay = document.getElementById('timer-display');
+            const progressBar = document.getElementById('progress-bar');
+            const pathogensDefeatedDisplay = document.getElementById('pathogens-defeated');
+            const pathogensTotalDisplay = document.getElementById('pathogens-total');
+            const currentWaveDisplay = document.getElementById('current-wave');
+            const totalWavesDisplay = document.getElementById('total-waves');
+            const startModal = document.getElementById('start-modal');
+            const pauseModal = document.getElementById('pause-modal');
+            const infoModal = document.getElementById('info-modal');
+            const gameOverModal = document.getElementById('game-over-modal');
+            const levelCompleteModal = document.getElementById('level-complete-modal');
+            const tooltip = document.getElementById('tooltip');
+            const backgroundMusic = document.getElementById('background-music');
+            const muteBtn = document.getElementById('mute-btn');
+            const unmutedIcon = document.getElementById('unmuted-icon');
+            const mutedIcon = document.getElementById('muted-icon');
+            // Cell definitions
+            const cellTypes = {
+                neutrophil: {
+                    name: 'Neutrophil',
+                    cost: 10,
+                    health: 50,
+                    damage: 10,
+                    range: 100,
+                    attackSpeed: 1000, // ms between attacks
+                    color: '#4c6fff',
+                    size: 30,
+                    description: 'Fast first responder that attacks bacteria'
+                },
+                macrophage: {
+                    name: 'Macrophage',
+                    cost: 20,
+                    health: 100,
+                    damage: 15,
+                    range: 120,
+                    attackSpeed: 1500,
+                    color: '#9333ea',
+                    size: 35,
+                    description: 'Powerful phagocyte that engulfs pathogens'
+                },
+                tcell: {
+                    name: 'T-Cell',
+                    cost: 30,
+                    health: 70,
+                    damage: 20,
+                    range: 150,
+                    attackSpeed: 2000,
+                    color: '#16a34a',
+                    size: 30,
+                    description: 'Targets specific threats with high damage'
+                },
+                bcell: {
+                    name: 'B-Cell',
+                    cost: 40,
+                    health: 60,
+                    damage: 5,
+                    range: 200,
+                    attackSpeed: 1000,
+                    color: '#dc2626',
+                    size: 30,
+                    description: 'Creates antibodies that weaken pathogens'
+                }
+            };
+            // Pathogen definitions
+            const pathogenTypes = {
+                bacteria: {
+                    name: 'Bacteria',
+                    health: 50,
+                    damage: 10,
+                    speed: 0.7,
+                    color: '#ef4444',
+                    size: 25,
+                    points: 10,
+                    description: 'Single-celled microorganisms'
+                },
+                virus: {
+                    name: 'Virus',
+                    health: 30,
+                    damage: 15,
+                    speed: 1,
+                    color: '#eab308',
+                    size: 20,
+                    points: 15,
+                    description: 'Tiny infectious agents that hijack cells'
+                },
+                fungi: {
+                    name: 'Fungi',
+                    health: 80,
+                    damage: 8,
+                    speed: 0.5,
+                    color: '#16a34a',
+                    size: 30,
+                    points: 20,
+                    description: 'Eukaryotic organisms like yeasts and molds'
+                },
+                parasite: {
+                    name: 'Parasite',
+                    health: 100,
+                    damage: 20,
+                    speed: 0.3,
+                    color: '#9333ea',
+                    size: 35,
+                    points: 25,
+                    description: 'Organisms that live at the expense of the host'
+                }
+            };
+            // Level definitions
+            const levels = {
+                1: {
+                    name: 'Bloodstream',
+                    description: 'Defend against bacteria in the bloodstream.',
+                    background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(220,230,255,0.4) 70%)',
+                    pathogens: ['bacteria'],
+                    pathogenRate: 2000, // ms between spawns
+                    resourceRate: 2,
+                    waves: [
+                        { count: 5, type: 'bacteria', interval: 2000 },
+                        { count: 7, type: 'bacteria', interval: 1800 },
+                        { count: 8, type: 'bacteria', interval: 1500 }
+                    ]
+                },
+                2: {
+                    name: 'Lungs',
+                    description: 'Combat viruses in the respiratory system.',
+                    background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(255,230,230,0.4) 70%)',
+                    pathogens: ['virus', 'bacteria'],
+                    pathogenRate: 1800,
+                    resourceRate: 2.5,
+                    waves: [
+                        { count: 6, type: 'virus', interval: 1800 },
+                        { count: 4, type: 'bacteria', interval: 2000, delay: 2000 },
+                        { count: 10, type: 'virus', interval: 1500 }
+                    ]
+                },
+                3: {
+                    name: 'Intestines',
+                    description: 'Fight parasites in the digestive tract.',
+                    background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(230,255,230,0.4) 70%)',
+                    pathogens: ['parasite', 'bacteria'],
+                    pathogenRate: 2200,
+                    resourceRate: 2.2,
+                    waves: [
+                        { count: 3, type: 'parasite', interval: 3000 },
+                        { count: 5, type: 'bacteria', interval: 2000, delay: 1000 },
+                        { count: 4, type: 'parasite', interval: 2500 }
+                    ]
+                },
+                4: {
+                    name: 'Skin',
+                    description: 'Defend against fungi on the skin surface.',
+                    background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(255,255,230,0.4) 70%)',
+                    pathogens: ['fungi', 'bacteria'],
+                    pathogenRate: 1900,
+                    resourceRate: 2.3,
+                    waves: [
+                        { count: 4, type: 'fungi', interval: 2500 },
+                        { count: 6, type: 'bacteria', interval: 1800, delay: 500 },
+                        { count: 5, type: 'fungi', interval: 2200 }
+                    ]
+                }
+            };
+            // Educational facts
+            const immuneFacts = [
+                "Your immune system contains approximately 1 trillion white blood cells and can remember pathogens it has encountered for decades!",
+                "Neutrophils are the most abundant type of white blood cell, making up 60-70% of all circulating white blood cells.",
+                "The bone marrow produces about 100 billion new white blood cells every day to maintain your immune defenses.",
+                "Vaccines work by training your immune system to recognize and fight specific pathogens without causing the disease.",
+                "Fever is actually an immune response that helps your body fight infection by creating an environment that's less favorable for pathogens.",
+                "Your skin is part of your immune system - it acts as a physical barrier to keep pathogens out.",
+                "Antibodies are Y-shaped proteins that can recognize and bind to specific antigens on pathogens.",
+                "Memory B-cells can survive for decades, providing long-term immunity against pathogens you've encountered before."
+            ];
+            // Initialize game
+            function initGame() {
+                // Initialize audio system
+                initAudio();
+
+                // Set up language switcher
+                document.getElementById('lang-en').addEventListener('click', () => switchLanguage('en'));
+                document.getElementById('lang-th').addEventListener('click', () => switchLanguage('th'));
+                
+                // Set up event listeners
+                document.getElementById('start-game').addEventListener('click', startGame);
+                document.getElementById('pause-btn').addEventListener('click', togglePause);
+                document.getElementById('resume-game').addEventListener('click', togglePause);
+                document.getElementById('restart-game').addEventListener('click', restartLevel);
+                document.getElementById('info-btn').addEventListener('click', showInfoModal);
+                document.getElementById('close-info').addEventListener('click', hideInfoModal);
+                document.getElementById('back-to-game').addEventListener('click', hideInfoModal);
+                document.getElementById('try-again').addEventListener('click', restartLevel);
+                document.getElementById('back-to-menu').addEventListener('click', backToMenu);
+                document.getElementById('next-level').addEventListener('click', nextLevel);
+                document.getElementById('replay-level').addEventListener('click', restartLevel);
+                document.getElementById('submit-score-btn').addEventListener('click', submitScore);
+                muteBtn.addEventListener('click', toggleMute);
+
+                // Tab navigation in info modal
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        const tabId = this.getAttribute('data-tab');
+                        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+                        this.classList.add('active');
+                        document.getElementById(`${tabId}-content`).classList.remove('hidden');
+                    });
+                });
+                // Cell selection
+                document.querySelectorAll('.cell-card').forEach(cell => {
+                    cell.addEventListener('click', function() {
+                        const cellType = this.getAttribute('data-cell');
+                        const cost = parseInt(this.getAttribute('data-cost'));
+                        selectCell(cellType, cost);
+                    });
+                    // Add tooltips
+                    cell.addEventListener('mouseenter', function(e) {
+                        const cellType = this.getAttribute('data-cell');
+                        showTooltip(e, cellTypes[cellType].description);
+                    });
+                    cell.addEventListener('mouseleave', function() {
+                        hideTooltip();
+                    });
+                });
+                // Game board click
+                gameBoard.addEventListener('click', function(e) {
+                    if (gameState.selectedCell && !gameState.isPaused && gameState.isPlaying) {
+                        const rect = gameBoard.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        placeDefender(x, y);
+                    }
+                });
+                // Update displays
+                updateDisplays();
+            }
+            // Start the game
+            function startGame() {
+                gameState.isPlaying = true;
+                gameState.isPaused = false;
+                startModal.style.display = 'none';
+                
+                // Play music on user interaction
+                backgroundMusic.play().catch(e => console.log("Autoplay was prevented."));
+
+                // Reset game state for new game
+                if (gameState.level === 1) { // Only reset total score/time if starting from level 1
+                    gameState.totalScore = 0;
+                    gameState.startTime = Date.now();
+                }
+                gameState.levelStartTime = Date.now(); // Reset level start time
+                gameState.levelScore = 0; // Reset level score
+                gameState.resources = 100;
+                gameState.health = 100;
+                gameState.pathogensDefeated = 0;
+                gameState.wave = 1;
+                gameState.defenders = [];
+                gameState.pathogens = [];
+                gameState.projectiles = [];
+                gameState.lastResourceUpdate = Date.now();
+                // Set up the current level
+                const currentLevel = levels[gameState.level];
+                gameState.resourceRate = currentLevel.resourceRate;
+                gameState.pathogensTotal = currentLevel.waves.reduce((total, wave) => total + wave.count, 0);
+                gameBoard.style.backgroundImage = currentLevel.background;
+                // Update displays
+                updateDisplays();
+                // Start game loops
+                startGameLoop();
+                startTimer();
+                startWave(gameState.wave);
+                // Play sound
+                // sounds.levelComplete(); // Optional: play a sound when level starts
+            }
+            // Game loop
+            function startGameLoop() {
+                if (gameState.gameLoop) clearInterval(gameState.gameLoop);
+                gameState.gameLoop = setInterval(() => {
+                    if (gameState.isPaused) return;
+                    // Update resources
+                    const now = Date.now();
+                    const deltaTime = now - gameState.lastResourceUpdate;
+                    if (deltaTime >= 1000) {
+                        gameState.resources += gameState.resourceRate;
+                        gameState.lastResourceUpdate = now;
+                        updateDisplays();
+                    }
+                    // Move pathogens
+                    movePathogens();
+                    // Move projectiles
+                    moveProjectiles();
+                    // Defenders attack
+                    gameState.defenders.forEach(defender => {
+                        if (defender.lastAttack + defender.attackSpeed <= now) {
+                            const target = findTarget(defender);
+                            if (target) {
+                                attack(defender, target);
+                                defender.lastAttack = now;
+                            }
+                        }
+                    });
+                    // Check for game over
+                    if (gameState.health <= 0) {
+                        gameOver();
+                    }
+                }, 16); // ~60fps
+            }
+
+            // Timer management
+            function startTimer() {
+                if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+                gameState.timerInterval = setInterval(() => {
+                    if (gameState.isPaused) return;
+                    const elapsed = Date.now() - gameState.startTime;
+                    const minutes = Math.floor(elapsed / 60000);
+                    const seconds = Math.floor((elapsed % 60000) / 1000);
+                    timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                }, 1000);
+            }
+
+            // Start a wave of pathogens
+            function startWave(waveNumber) {
+                if (waveNumber > gameState.totalWaves) {
+                    levelComplete();
+                    return;
+                }
+                currentWaveDisplay.textContent = waveNumber;
+                const wave = levels[gameState.level].waves[waveNumber - 1];
+                let count = 0;
+                // Clear any existing spawn interval
+                if (gameState.pathogenSpawnInterval) clearInterval(gameState.pathogenSpawnInterval);
+                // Start spawning after delay if specified
+                setTimeout(() => {
+                    gameState.pathogenSpawnInterval = setInterval(() => {
+                        if (gameState.isPaused) return;
+                        spawnPathogen(wave.type);
+                        count++;
+                        if (count >= wave.count) {
+                            clearInterval(gameState.pathogenSpawnInterval);
+                            // Set timeout for next wave
+                            if (gameState.waveTimeout) clearTimeout(gameState.waveTimeout);
+                            gameState.waveTimeout = setTimeout(() => {
+                                gameState.wave++;
+                                startWave(gameState.wave);
+                            }, 10000); // 10 seconds between waves
+                        }
+                    }, wave.interval);
+                }, wave.delay || 0);
+            }
+            // Spawn a pathogen
+            function spawnPathogen(type) {
+                const pathogenType = pathogenTypes[type];
+                const y = Math.random() * (gameBoard.clientHeight - 60) + 30;
+                const pathogen = {
+                    id: 'pathogen-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                    type: type,
+                    x: 0,
+                    y: y,
+                    health: pathogenType.health,
+                    maxHealth: pathogenType.health,
+                    damage: pathogenType.damage,
+                    speed: pathogenType.speed,
+                    size: pathogenType.size,
+                    points: pathogenType.points,
+                    element: createPathogenElement(type, y)
+                };
+                gameState.pathogens.push(pathogen);
+                gameBoard.appendChild(pathogen.element);
+                // Add tooltip
+                pathogen.element.addEventListener('mouseenter', function(e) {
+                    showTooltip(e, `${pathogenType.name}: ${pathogenType.description}`);
+                });
+                pathogen.element.addEventListener('mouseleave', function() {
+                    hideTooltip();
+                });
+            }
+            // Create pathogen DOM element
+            function createPathogenElement(type, y) {
+                const pathogenType = pathogenTypes[type];
+                const element = document.createElement('div');
+                element.className = 'pathogen';
+                element.style.width = pathogenType.size + 'px';
+                element.style.height = pathogenType.size + 'px';
+                element.style.backgroundColor = pathogenType.color;
+                element.style.borderRadius = '50%';
+                element.style.left = '0px';
+                element.style.top = y + 'px';
+                // Add inner details to make it look more like the pathogen type
+                if (type === 'bacteria') {
+                    element.innerHTML = `
+                        <svg viewBox="0 0 100 100" width="100%" height="100%">
+                            <circle cx="30" cy="30" r="10" fill="white" opacity="0.6" />
+                            <circle cx="60" cy="40" r="8" fill="white" opacity="0.6" />
+                            <circle cx="40" cy="70" r="12" fill="white" opacity="0.6" />
+                        </svg>
+                    `;
+                } else if (type === 'virus') {
+                    element.innerHTML = `
+                        <svg viewBox="0 0 100 100" width="100%" height="100%">
+                            <circle cx="50" cy="50" r="30" fill="white" opacity="0.6" />
+                            <line x1="50" y1="0" x2="50" y2="20" stroke="white" stroke-width="4" />
+                            <line x1="50" y1="80" x2="50" y2="100" stroke="white" stroke-width="4" />
+                            <line x1="0" y1="50" x2="20" y2="50" stroke="white" stroke-width="4" />
+                            <line x1="80" y1="50" x2="100" y2="50" stroke="white" stroke-width="4" />
+                            <line x1="15" y1="15" x2="30" y2="30" stroke="white" stroke-width="4" />
+                            <line x1="70" y1="70" x2="85" y2="85" stroke="white" stroke-width="4" />
+                            <line x1="15" y1="85" x2="30" y2="70" stroke="white" stroke-width="4" />
+                            <line x1="70" y1="30" x2="85" y2="15" stroke="white" stroke-width="4" />
+                        </svg>
+                    `;
+                }
+                // Add health bar
+                const healthBar = document.createElement('div');
+                healthBar.className = 'absolute -top-3 left-0 w-full h-1 bg-gray-300 rounded-full overflow-hidden';
+                const healthFill = document.createElement('div');
+                healthFill.className = 'h-full bg-green-500 transition-all duration-300';
+                healthFill.style.width = '100%';
+                healthBar.appendChild(healthFill);
+                element.appendChild(healthBar);
+                return element;
+            }
+            // Move pathogens
+            function movePathogens() {
+                const boardWidth = gameBoard.clientWidth;
+                gameState.pathogens.forEach((pathogen, index) => {
+                    pathogen.x += pathogen.speed;
+                    pathogen.element.style.left = pathogen.x + 'px';
+                    // Update health bar
+                    const healthPercentage = (pathogen.health / pathogen.maxHealth) * 100;
+                    const healthBar = pathogen.element.querySelector('div > div');
+                    if (healthBar) {
+                        healthBar.style.width = healthPercentage + '%';
+                        // Change color based on health
+                        if (healthPercentage > 50) {
+                            healthBar.className = 'h-full bg-green-500 transition-all duration-300';
+                        } else if (healthPercentage > 25) {
+                            healthBar.className = 'h-full bg-yellow-500 transition-all duration-300';
+                        } else {
+                            healthBar.className = 'h-full bg-red-500 transition-all duration-300';
+                        }
+                    }
+                    // Check if pathogen reached the end
+                    if (pathogen.x > boardWidth - pathogen.size) {
+                        gameState.health -= pathogen.damage;
+                        // Play sound
+                        sounds.hitPathogen();
+                        gameBoard.removeChild(pathogen.element);
+                        gameState.pathogens.splice(index, 1);
+                        updateDisplays();
+                    }
+                });
+            }
+            // Select a cell to place
+            function selectCell(cellType, cost) {
+                if (gameState.resources >= cost) {
+                    gameState.selectedCell = {
+                        type: cellType,
+                        cost: cost
+                    };
+                    // Update visual selection
+                    document.querySelectorAll('.cell-card').forEach(card => {
+                        card.classList.remove('ring-2', 'ring-blue-500');
+                    });
+                    document.querySelector(`[data-cell="${cellType}"]`).classList.add('ring-2', 'ring-blue-500');
+                } else {
+                    // Visual feedback for not enough resources
+                    const cellCard = document.querySelector(`[data-cell="${cellType}"]`);
+                    cellCard.classList.add('animate-shake');
+                    // Play sound
+                    sounds.insufficientResources();
+                    setTimeout(() => {
+                        cellCard.classList.remove('animate-shake');
+                    }, 500);
+                }
+            }
+            // Place a defender on the board
+            function placeDefender(x, y) {
+                if (!gameState.selectedCell) return;
+                const cellType = cellTypes[gameState.selectedCell.type];
+                const cost = gameState.selectedCell.cost;
+                // Check if we have enough resources
+                if (gameState.resources >= cost) {
+                    // Check if position is valid (not too close to edge)
+                    if (x < gameBoard.clientWidth - 100 && x > 50 && y > 30 && y < gameBoard.clientHeight - 30) {
+                        // Check if there's already a defender at this position
+                        const tooClose = gameState.defenders.some(defender => {
+                            const distance = Math.sqrt(Math.pow(defender.x - x, 2) + Math.pow(defender.y - y, 2));
+                            return distance < cellType.size * 1.5;
+                        });
+                        if (!tooClose) {
+                            // Create defender
+                            const defender = {
+                                id: 'defender-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                                type: gameState.selectedCell.type,
+                                x: x,
+                                y: y,
+                                health: cellType.health,
+                                damage: cellType.damage,
+                                range: cellType.range,
+                                attackSpeed: cellType.attackSpeed,
+                                lastAttack: 0,
+                                element: createDefenderElement(gameState.selectedCell.type, x, y)
+                            };
+                            gameState.defenders.push(defender);
+                            gameBoard.appendChild(defender.element);
+                            // Add tooltip
+                            defender.element.addEventListener('mouseenter', function(e) {
+                                showTooltip(e, `${cellType.name}: ${cellType.description}`);
+                            });
+                            defender.element.addEventListener('mouseleave', function() {
+                                hideTooltip();
+                            });
+                            // Deduct resources
+                            gameState.resources -= cost;
+                            // Play sound
+                            sounds.placeDefender();
+                            updateDisplays();
+                            // Clear selection
+                            gameState.selectedCell = null;
+                            document.querySelectorAll('.cell-card').forEach(card => {
+                                card.classList.remove('ring-2', 'ring-blue-500');
+                            });
+                        }
+                    }
+                }
+            }
+            // Create defender DOM element
+            function createDefenderElement(type, x, y) {
+                const cellType = cellTypes[type];
+                const element = document.createElement('div');
+                element.className = 'defender';
+                element.style.width = cellType.size + 'px';
+                element.style.height = cellType.size + 'px';
+                element.style.backgroundColor = cellType.color;
+                element.style.borderRadius = '50%';
+                element.style.left = (x - cellType.size / 2) + 'px';
+                element.style.top = (y - cellType.size / 2) + 'px';
+                // Add inner details based on cell type
+                if (type === 'neutrophil') {
+                    element.innerHTML = `
+                        <svg viewBox="0 0 100 100" width="100%" height="100%">
+                            <circle cx="50" cy="50" r="40" fill="white" opacity="0.6" />
+                            <circle cx="50" cy="50" r="20" fill="${cellType.color}" opacity="0.8" />
+                        </svg>
+                    `;
+                } else if (type === 'macrophage') {
+                    element.innerHTML = `
+                        <svg viewBox="0 0 100 100" width="100%" height="100%">
+                            <path d="M30,30 Q50,10 70,30 Q90,50 70,70 Q50,90 30,70 Q10,50 30,30" fill="white" opacity="0.6" />
+                        </svg>
+                    `;
+                } else if (type === 'tcell') {
+                    element.innerHTML = `
+                        <svg viewBox="0 0 100 100" width="100%" height="100%">
+                            <circle cx="50" cy="50" r="35" fill="white" opacity="0.6" />
+                            <rect x="40" y="20" width="20" height="60" fill="${cellType.color}" opacity="0.8" />
+                            <rect x="20" y="40" width="60" height="20" fill="${cellType.color}" opacity="0.8" />
+                        </svg>
+                    `;
+                } else if (type === 'bcell') {
+                    element.innerHTML = `
+                        <svg viewBox="0 0 100 100" width="100%" height="100%">
+                            <circle cx="50" cy="50" r="35" fill="white" opacity="0.6" />
+                            <text x="50" y="65" font-size="50" text-anchor="middle" fill="${cellType.color}" opacity="0.8">B</text>
+                        </svg>
+                    `;
+                }
+                // Add range indicator (initially hidden)
+                const rangeIndicator = document.createElement('div');
+                rangeIndicator.className = 'absolute rounded-full border border-dashed opacity-0 transition-opacity duration-300';
+                rangeIndicator.style.width = (cellType.range * 2) + 'px';
+                rangeIndicator.style.height = (cellType.range * 2) + 'px';
+                rangeIndicator.style.left = (-cellType.range + cellType.size / 2) + 'px';
+                rangeIndicator.style.top = (-cellType.range + cellType.size / 2) + 'px';
+                rangeIndicator.style.borderColor = cellType.color;
+                element.appendChild(rangeIndicator);
+                // Show range on hover
+                element.addEventListener('mouseenter', () => {
+                    rangeIndicator.classList.add('opacity-30');
+                });
+                element.addEventListener('mouseleave', () => {
+                    rangeIndicator.classList.remove('opacity-30');
+                });
+                return element;
+            }
+            // Find a target for a defender
+            function findTarget(defender) {
+                for (const pathogen of gameState.pathogens) {
+                    const distance = Math.sqrt(Math.pow(defender.x - pathogen.x - pathogen.size/2, 2) + 
+                                              Math.pow(defender.y - pathogen.y - pathogen.size/2, 2));
+                    if (distance <= defender.range) {
+                        return pathogen;
+                    }
+                }
+                return null;
+            }
+            // Attack a pathogen
+            function attack(defender, pathogen) {
+                // Create projectile
+                const projectile = {
+                    id: 'projectile-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                    x: defender.x,
+                    y: defender.y,
+                    targetId: pathogen.id,
+                    damage: defender.damage,
+                    speed: 5,
+                    size: 8,
+                    element: createProjectileElement(defender.type, defender.x, defender.y)
+                };
+                gameState.projectiles.push(projectile);
+                gameBoard.appendChild(projectile.element);
+            }
+            // Create projectile DOM element
+            function createProjectileElement(defenderType, x, y) {
+                const element = document.createElement('div');
+                element.className = 'projectile';
+                element.style.width = '8px';
+                element.style.height = '8px';
+                // Style based on defender type
+                if (defenderType === 'neutrophil') {
+                    element.style.backgroundColor = '#4c6fff';
+                } else if (defenderType === 'macrophage') {
+                    element.style.backgroundColor = '#9333ea';
+                } else if (defenderType === 'tcell') {
+                    element.style.backgroundColor = '#16a34a';
+                } else if (defenderType === 'bcell') {
+                    element.style.backgroundColor = '#dc2626';
+                }
+                element.style.left = (x - 4) + 'px';
+                element.style.top = (y - 4) + 'px';
+                return element;
+            }
+            // Move projectiles
+            function moveProjectiles() {
+                gameState.projectiles.forEach((projectile, index) => {
+                    // Find target
+                    const target = gameState.pathogens.find(p => p.id === projectile.targetId);
+                    if (target) {
+                        // Calculate direction to target
+                        const targetX = target.x + target.size / 2;
+                        const targetY = target.y + target.size / 2;
+                        const dx = targetX - projectile.x;
+                        const dy = targetY - projectile.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < 5) {
+                            // Hit target
+                            hitPathogen(target, projectile.damage);
+                            // Remove projectile
+                            if (projectile.element.parentNode === gameBoard) {
+                                gameBoard.removeChild(projectile.element);
+                            }
+                            gameState.projectiles.splice(index, 1);
+                        } else {
+                            // Move towards target
+                            const vx = (dx / distance) * projectile.speed;
+                            const vy = (dy / distance) * projectile.speed;
+                            projectile.x += vx;
+                            projectile.y += vy;
+                            projectile.element.style.left = (projectile.x - 4) + 'px';
+                            projectile.element.style.top = (projectile.y - 4) + 'px';
+                        }
+                    } else {
+                        // Target is gone, remove projectile
+                        if (projectile.element.parentNode === gameBoard) {
+                            gameBoard.removeChild(projectile.element);
+                        }
+                        gameState.projectiles.splice(index, 1);
+                    }
+                });
+            }
+            // Hit a pathogen with damage
+            function hitPathogen(pathogen, damage) {
+                pathogen.health -= damage;
+                // Update health bar
+                const healthPercentage = (pathogen.health / pathogen.maxHealth) * 100;
+                const healthBar = pathogen.element.querySelector('div > div');
+                if (healthBar) {
+                    healthBar.style.width = healthPercentage + '%';
+                }
+                // Check if pathogen is defeated
+                if (pathogen.health <= 0) {
+                    defeatPathogen(pathogen);
+                } else {
+                     // Play hit sound for non-lethal hits
+                    sounds.hitPathogen();
+                }
+            }
+            // Defeat a pathogen
+            function defeatPathogen(pathogen) {
+                // Remove from DOM
+                if (pathogen.element.parentNode === gameBoard) {
+                    gameBoard.removeChild(pathogen.element);
+                }
+                // Remove from game state
+                const index = gameState.pathogens.findIndex(p => p.id === pathogen.id);
+                if (index !== -1) {
+                    gameState.pathogens.splice(index, 1);
+                }
+                // Update stats
+                gameState.pathogensDefeated++;
+                gameState.resources += pathogen.points / 2; // Bonus resources
+                gameState.levelScore += pathogen.points; // Add to level score
+                // Play sound
+                sounds.defeatPathogen();
+                // Update displays
+                updateDisplays();
+                // Check if level is complete
+                if (gameState.pathogensDefeated >= gameState.pathogensTotal && gameState.pathogens.length === 0) {
+                    if (gameState.waveTimeout) {
+                        clearTimeout(gameState.waveTimeout);
+                    }
+                    levelComplete();
+                }
+            }
+            // Update game displays
+            function updateDisplays() {
+                resourcesDisplay.textContent = Math.floor(gameState.resources);
+                healthDisplay.textContent = Math.floor(gameState.health);
+                levelDisplay.textContent = gameState.level;
+                totalScoreDisplay.textContent = gameState.totalScore + gameState.levelScore;
+                pathogensDefeatedDisplay.textContent = gameState.pathogensDefeated;
+                pathogensTotalDisplay.textContent = gameState.pathogensTotal;
+                currentWaveDisplay.textContent = gameState.wave;
+                totalWavesDisplay.textContent = gameState.totalWaves;
+                // Update progress bar
+                const progress = (gameState.pathogensDefeated / gameState.pathogensTotal) * 100;
+                progressBar.style.width = progress + '%';
+                
+                // Update level info display
+                const currentLevel = levels[gameState.level];
+                if (currentLevel) {
+                    document.getElementById('level-name').textContent = translations[currentLanguage].levelName;
+                    document.getElementById('level-desc').textContent = translations[currentLanguage].levelDesc;
+                }
+            }
+            // Toggle pause state
+            function togglePause() {
+                gameState.isPaused = !gameState.isPaused;
+                if (gameState.isPaused) {
+                    pauseModal.classList.remove('hidden');
+                    backgroundMusic.pause();
+                } else {
+                    pauseModal.classList.add('hidden');
+                    if (!backgroundMusic.muted) {
+                        backgroundMusic.play();
+                    }
+                }
+            }
+            // Show info modal
+            function showInfoModal() {
+                gameState.isPaused = true;
+                infoModal.classList.remove('hidden');
+            }
+            // Hide info modal
+            function hideInfoModal() {
+                infoModal.classList.add('hidden');
+                if (gameState.isPlaying) {
+                    gameState.isPaused = false;
+                }
+            }
+            // Game over
+            function gameOver() {
+                gameState.isPlaying = false;
+                gameState.isPaused = true;
+                if (gameState.gameLoop) clearInterval(gameState.gameLoop);
+                if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+                if (gameState.pathogenSpawnInterval) clearInterval(gameState.pathogenSpawnInterval);
+                if (gameState.waveTimeout) clearTimeout(gameState.waveTimeout);
+                // Calculate final time
+                const totalTime = Math.floor((Date.now() - gameState.startTime) / 1000);
+                const finalScore = gameState.totalScore + gameState.levelScore;
+                // Update game over modal
+                document.getElementById('final-pathogens-defeated').textContent = gameState.pathogensDefeated;
+                document.getElementById('final-level').textContent = gameState.level;
+                document.getElementById('final-waves').textContent = gameState.wave - 1;
+                document.getElementById('final-score').textContent = finalScore;
+                document.getElementById('final-time').textContent = totalTime + 's';
+
+                document.getElementById('score-submission-form').classList.remove('hidden');
+                document.getElementById('game-over-buttons').classList.add('hidden');
+                document.getElementById('submission-status').textContent = '';
+
+                // Play sound
+                sounds.gameOver();
+                backgroundMusic.pause();
+                // Show game over modal
+                gameOverModal.classList.remove('hidden');
+            }
+
+            // --- Google Sheets Score Submission ---
+            function submitScore() {
+                const playerName = document.getElementById('player-name-input').value.trim();
+                const finalScore = gameState.totalScore + gameState.levelScore;
+                const statusElement = document.getElementById('submission-status');
+
+                if (!playerName) {
+                    alert('Please enter your name.');
+                    return;
+                }
+
+                statusElement.textContent = translations[currentLanguage].submissionStatus.submitting;
+
+                // --- IMPORTANT ---
+                // Replace this URL with your own Google Apps Script Web App URL.
+                const googleWebAppUrl = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+                if (googleWebAppUrl === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+                    console.error("Google Apps Script URL is not set. Cannot submit score.");
+                    statusElement.textContent = "Submission endpoint not configured.";
+                    document.getElementById('score-submission-form').classList.add('hidden');
+                    document.getElementById('game-over-buttons').classList.remove('hidden');
+                    return;
+                }
+                
+                // Instructions for setting up Google App Script:
+                // 1. Go to script.google.com and create a new project.
+                // 2. Paste the following code into the script editor, replacing any existing code.
+                /*
+                function doPost(e) {
+                  try {
+                    var sheet = SpreadsheetApp.openById("YOUR_SPREADSHEET_ID").getSheetByName("Scores"); // Replace with your Spreadsheet ID and Sheet Name
+                    
+                    var data = JSON.parse(e.postData.contents);
+                    var name = data.name;
+                    var score = data.score;
+                    var timestamp = new Date();
+                    
+                    sheet.appendRow([timestamp, name, score]);
+                    
+                    return ContentService.createTextOutput(JSON.stringify({ "status": "success" })).setMimeType(ContentService.MimeType.JSON);
+                  } catch (error) {
+                    return ContentService.createTextOutput(JSON.stringify({ "status": "error", "message": error.message })).setMimeType(ContentService.MimeType.JSON);
+                  }
+                }
+                */
+                // 3. Create a Google Sheet. Get its ID from the URL (the long string of characters). Add a sheet named "Scores".
+                // 4. In the Apps Script, replace "YOUR_SPREADSHEET_ID" with your actual Sheet ID.
+                // 5. In the Apps Script editor, click "Deploy" > "New deployment".
+                // 6. Select Type "Web app".
+                // 7. For "Who has access", select "Anyone".
+                // 8. Click "Deploy". Authorize the permissions.
+                // 9. Copy the "Web app URL" and paste it into the `googleWebAppUrl` variable above.
+
+                fetch(googleWebAppUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', // Important for simple web app deployments
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: playerName, score: finalScore }),
+                })
+                .then(response => {
+                    statusElement.textContent = translations[currentLanguage].submissionStatus.success;
+                    document.getElementById('score-submission-form').classList.add('hidden');
+                    document.getElementById('game-over-buttons').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    statusElement.textContent = translations[currentLanguage].submissionStatus.error;
+                    document.getElementById('score-submission-form').classList.add('hidden');
+                    document.getElementById('game-over-buttons').classList.remove('hidden');
+                });
+            }
+
+            // Level complete
+            function levelComplete() {
+                gameState.isPlaying = false;
+                gameState.isPaused = true;
+                if (gameState.gameLoop) clearInterval(gameState.gameLoop);
+                if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+                if (gameState.pathogenSpawnInterval) clearInterval(gameState.pathogenSpawnInterval);
+                if (gameState.waveTimeout) clearTimeout(gameState.waveTimeout);
+                // Calculate level time
+                const levelTime = Math.floor((Date.now() - gameState.levelStartTime) / 1000);
+                // Update level complete modal
+                document.getElementById('summary-pathogens-defeated').textContent = gameState.pathogensDefeated;
+                document.getElementById('summary-health').textContent = Math.floor(gameState.health) + '%';
+                // Calculate efficiency (resources spent vs pathogens defeated)
+                const totalCost = gameState.defenders.reduce((total, d) => total + cellTypes[d.type].cost, 0) || 1; // || 1 to avoid division by zero
+                const efficiency = Math.min(100, Math.floor((gameState.pathogensDefeated * 10) / totalCost * 100));
+                document.getElementById('summary-efficiency').textContent = efficiency + '%';
+                document.getElementById('summary-score').textContent = gameState.levelScore;
+                document.getElementById('summary-time').textContent = levelTime + 's';
+                
+                // Add level score to total score
+                gameState.totalScore += gameState.levelScore;
+                
+                // Set random immune fact
+                document.getElementById('immune-fact').textContent = 
+                    immuneFacts[Math.floor(Math.random() * immuneFacts.length)];
+                // Show level complete modal
+                levelCompleteModal.classList.remove('hidden');
+                // Enable/disable next level button
+                if (gameState.level < Object.keys(levels).length) {
+                    document.getElementById('next-level').disabled = false;
+                    document.getElementById('next-level').classList.remove('opacity-50');
+                } else {
+                    document.getElementById('next-level').disabled = true;
+                    document.getElementById('next-level').classList.add('opacity-50');
+                }
+                // Play sound
+                sounds.levelComplete();
+            }
+            // Next level
+            function nextLevel() {
+                gameState.level++;
+                levelCompleteModal.classList.add('hidden');
+                // Clear game board
+                while (gameBoard.firstChild) {
+                    gameBoard.removeChild(gameBoard.firstChild);
+                }
+                // Update level info
+                const currentLevel = levels[gameState.level];
+                document.querySelector('#level-info p:first-child').textContent = currentLevel.name;
+                document.querySelector('#level-info p:nth-child(2)').textContent = currentLevel.description;
+                startGame();
+            }
+            // Restart level
+            function restartLevel() {
+                pauseModal.classList.add('hidden');
+                gameOverModal.classList.add('hidden');
+                levelCompleteModal.classList.add('hidden');
+                // Clear game board
+                while (gameBoard.firstChild) {
+                    gameBoard.removeChild(gameBoard.firstChild);
+                }
+                startGame();
+            }
+            // Back to menu
+            function backToMenu() {
+                gameOverModal.classList.add('hidden');
+                startModal.style.display = 'flex';
+                // Clear game board
+                while (gameBoard.firstChild) {
+                    gameBoard.removeChild(gameBoard.firstChild);
+                }
+                gameState.isPlaying = false;
+            }
+            // Show tooltip
+            function showTooltip(event, text) {
+                tooltip.textContent = text;
+                tooltip.style.left = (event.pageX + 10) + 'px';
+                tooltip.style.top = (event.pageY + 10) + 'px';
+                tooltip.style.opacity = '1';
+            }
+            // Hide tooltip
+            function hideTooltip() {
+                tooltip.style.opacity = '0';
+            }
+
+            function toggleMute() {
+                backgroundMusic.muted = !backgroundMusic.muted;
+                unmutedIcon.classList.toggle('hidden', backgroundMusic.muted);
+                mutedIcon.classList.toggle('hidden', !backgroundMusic.muted);
+            }
+
+            // Initialize the game
+            initGame();
+            // Set initial language to Thai
+            switchLanguage('th');
+        });
+    </script>
+</body>
+</html>
