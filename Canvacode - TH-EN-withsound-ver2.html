@@ -1644,21 +1644,30 @@
                 gameOverModal.classList.remove('hidden');
             }
 
-            function submitScore() {
+           function submitScore() {
                 const playerName = document.getElementById('player-name-input').value.trim();
                 const finalScore = gameState.totalScore + gameState.levelScore;
                 const statusElement = document.getElementById('submission-status');
-                if (!playerName) { alert('Please enter your name.'); return; }
-                statusElement.textContent = translations[currentLanguage].submissionStatus.submitting;
-                const googleWebAppUrl = 'https://script.google.com/macros/s/AKfycbyTaiLEobLjwhoHXjTOJT7nuaY9dRohJsFbtLBwTsR0NPnJAYuJYMAnfwPx-jMGVAEyRg/exec';
-                if (googleWebAppUrl === 'https://script.google.com/macros/s/AKfycbyTaiLEobLjwhoHXjTOJT7nuaY9dRohJsFbtLBwTsR0NPnJAYuJYMAnfwPx-jMGVAEyRg/exec') {
-                    console.error("Google Apps Script URL is not set.");
-                    statusElement.textContent = "Submission endpoint not configured.";
-                    document.getElementById('score-submission-form').classList.add('hidden');
-                    document.getElementById('game-over-buttons').classList.remove('hidden');
-                    return;
+
+                if (!playerName) { 
+                    alert('Please enter your name.'); 
+                    return; 
                 }
-                fetch(googleWebAppUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: playerName, score: finalScore })})
+
+                statusElement.textContent = translations[currentLanguage].submissionStatus.submitting;
+                
+                // Your correct URL is here
+                const googleWebAppUrl = 'https://script.google.com/macros/s/AKfycbyTaiLEobLjwhoHXjTOJT7nuaY9dRohJsFbtLBwTsR0NPnJAYuJYMAnfwPx-jMGVAEyRg/exec';
+
+                // The faulty 'if' block that was here has been REMOVED.
+                // Now, the code goes directly to the fetch command.
+
+                fetch(googleWebAppUrl, { 
+                    method: 'POST', 
+                    mode: 'no-cors', // Important for this type of deployment
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ name: playerName, score: finalScore })
+                })
                 .then(() => {
                     statusElement.textContent = translations[currentLanguage].submissionStatus.success;
                     document.getElementById('score-submission-form').classList.add('hidden');
@@ -1746,4 +1755,5 @@
     </script>
 </body>
 </html>
+
 
