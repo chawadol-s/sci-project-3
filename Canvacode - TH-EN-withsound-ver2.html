@@ -1650,8 +1650,8 @@
                 const statusElement = document.getElementById('submission-status');
                 if (!playerName) { alert('Please enter your name.'); return; }
                 statusElement.textContent = translations[currentLanguage].submissionStatus.submitting;
-                const googleWebAppUrl = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
-                if (googleWebAppUrl === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+                const googleWebAppUrl = 'https://script.google.com/macros/s/AKfycbyTaiLEobLjwhoHXjTOJT7nuaY9dRohJsFbtLBwTsR0NPnJAYuJYMAnfwPx-jMGVAEyRg/exec';
+                if (googleWebAppUrl === 'https://script.google.com/macros/s/AKfycbyTaiLEobLjwhoHXjTOJT7nuaY9dRohJsFbtLBwTsR0NPnJAYuJYMAnfwPx-jMGVAEyRg/exec') {
                     console.error("Google Apps Script URL is not set.");
                     statusElement.textContent = "Submission endpoint not configured.";
                     document.getElementById('score-submission-form').classList.add('hidden');
@@ -1746,3 +1746,4 @@
     </script>
 </body>
 </html>
+
